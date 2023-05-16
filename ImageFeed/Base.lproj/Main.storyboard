@@ -70,7 +70,7 @@
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <connections>
-                                            <outlet property="cellImage" destination="WYX-Qo-Hqh" id="K3l-hQ-N0H"/>
+                                            <outlet property="cellImageView" destination="WYX-Qo-Hqh" id="tA6-pr-tZ7"/>
                                             <outlet property="date" destination="y7e-Ae-qBa" id="3hg-TP-t5d"/>
                                             <outlet property="likeButton" destination="8g3-0F-8dP" id="AvQ-IS-Jw9"/>
                                         </connections>

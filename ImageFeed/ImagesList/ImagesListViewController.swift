@@ -44,15 +44,9 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
         guard let image = UIImage(named: photosName[indexPath.row]) else { return }
+        guard let buttonImage = indexPath.row % 2 == 0 ? UIImage(named: "No Active") : UIImage(named: "Active") else { return }
         
-        cell.cellImage.image = image
-        cell.date.text = dateFormatter.string(from: Date())
-        
-        if indexPath.row % 2 == 0 {
-            cell.likeButton.setImage(UIImage(named: "No Active"), for: .normal)
-        } else {
-            cell.likeButton.setImage(UIImage(named: "Active"), for: .normal)
-        }
+        cell.configCell(cellImage: image, dataLabel: dateFormatter.string(from: Date()), buttonImage: buttonImage)
     }
 }
 
