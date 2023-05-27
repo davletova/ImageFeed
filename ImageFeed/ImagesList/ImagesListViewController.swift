@@ -28,8 +28,14 @@ class ImagesListViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == ShowSingleImageSegueIdentifier {
-            let viewController = segue.destination as! SingleImageViewController
-            let indexPath = sender as! IndexPath
+            guard let viewController = segue.destination as? SingleImageViewController else {
+                print("segue prepare: segue.destination has an unexpected type")
+                return
+            }
+            guard let indexPath = sender as? IndexPath else {
+                print("segue prepare: sender has an unexpected type")
+                return
+            }
             let image = UIImage(named: photosName[indexPath.row])
             viewController.image = image
         } else {

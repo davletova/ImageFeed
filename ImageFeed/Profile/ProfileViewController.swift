@@ -20,7 +20,7 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(red: 0.102, green: 0.106, blue: 0.133, alpha: 1)
+        view.backgroundColor = UIColor(named: "YP Black")
         
         addUserAvatar()
         
@@ -73,7 +73,7 @@ extension ProfileViewController {
     private func addUserLogin() {
         let label = UILabel()
         label.text = "@nik_has_gone"
-        label.textColor = UIColor(red: 0.682, green: 0.686, blue: 0.706, alpha: 1)
+        label.textColor = UIColor(named: "YP Gray") ?? .gray
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -89,7 +89,7 @@ extension ProfileViewController {
     private func addUserDescription() {
         let label = UILabel()
         label.text = "Hello World!"
-        label.textColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
+        label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -106,7 +106,7 @@ extension ProfileViewController {
         let buttonImage = UIImage(named: "logout") ?? UIImage(systemName: "ipad.and.arrow.forward")!
     
         let button = UIButton.systemButton(with: buttonImage, target: nil, action: #selector(didLogout))
-        button.tintColor = .red
+        button.tintColor = UIColor(named: "YP Red") ?? .red
         
         button.translatesAutoresizingMaskIntoConstraints = false
         

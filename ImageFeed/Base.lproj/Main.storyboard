@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -105,7 +106,7 @@
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="k6a-lq-1Ru" secondAttribute="bottom" id="AAI-iu-wQJ"/>
                             <constraint firstAttribute="trailing" secondItem="k6a-lq-1Ru" secondAttribute="trailing" id="Vht-8z-3UI"/>
@@ -195,7 +196,7 @@
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VbZ-64-rua"/>
-                        <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstItem="SPr-Qh-qDg" firstAttribute="top" secondItem="VbZ-64-rua" secondAttribute="top" constant="8" id="4TJ-zJ-r6h"/>
                             <constraint firstItem="SPr-Qh-qDg" firstAttribute="leading" secondItem="VbZ-64-rua" secondAttribute="leading" constant="16" id="Bjq-oc-Pky"/>
@@ -227,5 +228,8 @@
         <image name="sharing" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
         <image name="tab_profile_no_active" width="30" height="30"/>
+        <namedColor name="YP Black">
+            <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>
