@@ -11,6 +11,7 @@ class ImagesListViewController: UIViewController {
     @IBOutlet weak private var tableView: UITableView!
     
     private let photosName: [String] = Array(0..<20).map{"\($0)"}
+    private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -23,6 +24,23 @@ class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == ShowSingleImageSegueIdentifier {
+            guard let viewController = segue.destination as? SingleImageViewController else {
+                print("segue prepare: segue.destination has an unexpected type")
+                return
+            }
+            guard let indexPath = sender as? IndexPath else {
+                print("segue prepare: sender has an unexpected type")
+                return
+            }
+            let image = UIImage(named: photosName[indexPath.row])
+            viewController.image = image
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
     }
 }
 
@@ -44,15 +62,9 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
         guard let image = UIImage(named: photosName[indexPath.row]) else { return }
+        guard let buttonImage = indexPath.row % 2 == 0 ? UIImage(named: "No Active") : UIImage(named: "Active") else { return }
         
-        cell.cellImage.image = image
-        cell.date.text = dateFormatter.string(from: Date())
-        
-        if indexPath.row % 2 == 0 {
-            cell.likeButton.setImage(UIImage(named: "No Active"), for: .normal)
-        } else {
-            cell.likeButton.setImage(UIImage(named: "Active"), for: .normal)
-        }
+        cell.configCell(cellImage: image, dataLabel: dateFormatter.string(from: Date()), buttonImage: buttonImage)
     }
 }
 
@@ -68,6 +80,10 @@ extension ImagesListViewController: UITableViewDelegate {
         let scale = imageViewWidth / imageWidth
         let cellHeight = image.size.height * scale + imageInsets.top + imageInsets.bottom
         return cellHeight
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: ShowSingleImageSegueIdentifier, sender: indexPath)
     }
 }
 

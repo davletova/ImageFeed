@@ -9,9 +9,17 @@ import Foundation
 import UIKit
 
 final class ImageListCell: UITableViewCell {
-    @IBOutlet var cellImage: UIImageView!
-    @IBOutlet var likeButton: UIButton!
-    @IBOutlet var date: UILabel!
+    @IBOutlet private var cellImageView: UIImageView!
+    @IBOutlet private var likeButton: UIButton!
+    @IBOutlet private var date: UILabel!
     
     static let reuseIdentifier = "ImageListCell"
+}
+
+extension ImageListCell {
+    public func configCell(cellImage: UIImage, dataLabel: String, buttonImage: UIImage) {
+        cellImageView.image = cellImage
+        date.text = dataLabel
+        likeButton.setImage(buttonImage, for: .normal)
+    }
 }
