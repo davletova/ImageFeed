@@ -8,6 +8,8 @@
 import UIKit
 
 class ProfileViewController: UIViewController {
+    var user: User?
+    
     @IBOutlet var userName: UILabel!
     @IBOutlet var userLogin: UILabel!
     @IBOutlet var userDescription: UILabel!
@@ -56,7 +58,11 @@ extension ProfileViewController {
     
     private func addUserName() {
         let label = UILabel()
-        label.text = "Алия Давлетова"
+        
+        let firstName = user?.firstName ?? ""
+        let lastName = user?.lastName ?? ""
+        
+        label.text = "\(firstName) \(lastName)"
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 23.0)
         
@@ -72,7 +78,7 @@ extension ProfileViewController {
     
     private func addUserLogin() {
         let label = UILabel()
-        label.text = "@nik_has_gone"
+        label.text = user?.username ?? ""
         label.textColor = UIColor(named: "YP Gray") ?? .gray
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
@@ -88,7 +94,7 @@ extension ProfileViewController {
     
     private func addUserDescription() {
         let label = UILabel()
-        label.text = "Hello World!"
+        label.text = user?.bio ?? ""
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
