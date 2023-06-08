@@ -23,7 +23,8 @@ class AuthViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == AuthViewController.ReuseIdentifier {
             guard let webView = segue.destination as? WebViewViewController else {
-                fatalError("failed to customize seque.destination to WebViewViewController")
+                assertionFailure("failed to customize seque.destination to WebViewViewController")
+                return
             }
             webView.delegate = self
         } else {
@@ -43,7 +44,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
                     self.oauth2TokenStorage.accessToken = accessTokenResponse.accessToken
                     
                     guard let delegate = self.delegate else {
-                        fatalError("AuthViewControllerDelegate not found")
+                        assertionFailure("AuthViewControllerDelegate not found")
+                        return
                     }
                     
                     delegate.switchToTabBarController()

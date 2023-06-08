@@ -27,13 +27,14 @@ struct BearerTokenProvider: TokenProviderProtocol {
             method: HTTPMehtod.post,
             body: nil
         ) else {
-            fatalError("failed to make getToken request")
+            assertionFailure("failed to make getToken request")
+            return
         }
         
         networkClient.doRequest(request: request) { result in
             switch result {
             case .failure(let error):
-                fatalError("getToken doRequest failed with error: \(error)")
+                assertionFailure("getToken doRequest failed with error: \(error)")
             case .success(let data):
                 do {
                     let accessTokenResponse = try JSONDecoder().decode(AccessTokenResponse.self, from: data)

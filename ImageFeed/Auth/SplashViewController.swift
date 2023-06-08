@@ -33,7 +33,8 @@ class SplashViewController: UIViewController {
                            err == NetworkError.AccessDenied {
                             self.performSegue(withIdentifier: showAuthView, sender: nil)
                         } else {
-                            fatalError("get user failed with error: \(error)")
+                            assertionFailure("get user failed with error: \(error)")
+                            return
                         }
                     case (.success(let user)):
                         self.user = user
@@ -51,7 +52,10 @@ class SplashViewController: UIViewController {
             guard
                 let navigationController = segue.destination as? UINavigationController,
                 let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else { fatalError("Failed to prepare for \(showAuthView)") }
+            else {
+                assertionFailure("Failed to prepare for \(showAuthView)")
+                return
+            }
             viewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
@@ -62,7 +66,8 @@ class SplashViewController: UIViewController {
 extension SplashViewController: AuthViewControllerDelegate {
     func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
-            fatalError("Invalid configuration")
+            assertionFailure("Invalid configuration")
+            return
         }
         
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)

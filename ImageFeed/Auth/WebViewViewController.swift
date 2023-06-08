@@ -15,8 +15,8 @@ final class WebViewViewController: UIViewController {
     
     var delegate: WebViewViewControllerDelegate?
     
-    @IBOutlet private var webView: WKWebView!
-    @IBOutlet private var progressView: UIProgressView!
+    @IBOutlet private weak var webView: WKWebView!
+    @IBOutlet private weak var progressView: UIProgressView!
     
     @IBAction private func didTapBackButton(_ sender: Any?) {
         delegate?.webViewViewControllerDidCancel(self)
@@ -28,7 +28,8 @@ final class WebViewViewController: UIViewController {
         webView.navigationDelegate = self
 
         guard var urlComponents = URLComponents(string: UnsplashAuthorizeURL) else {
-            fatalError("create url components for UnsplashAuthorizeURL failed")
+            assertionFailure("create url components for UnsplashAuthorizeURL failed")
+            return
         }
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: AccessKey),
@@ -38,7 +39,8 @@ final class WebViewViewController: UIViewController {
         ]
 
         guard let finalURL = urlComponents.url else {
-            fatalError("create UnsplashAuthorizeURL failed")
+            assertionFailure("create UnsplashAuthorizeURL failed")
+            return
         }
         
         let request = URLRequest(url: finalURL)

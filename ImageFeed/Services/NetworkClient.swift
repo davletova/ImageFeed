@@ -28,8 +28,6 @@ class NetworkRequester: NetworkRequesterProtocol {
         request: URLRequest,
         handler: @escaping(Result<Data, Error>) -> Void
     ) {
-        print(request)
-        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 handler(.failure(error))

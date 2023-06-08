@@ -18,7 +18,8 @@ struct UserAPI {
     
     func getUser(handler: @escaping(Result<User, Error>) -> Void) {
         guard let baseURL = URL(string: DefaultBaseURL) else {
-            fatalError("failed to create url from \(DefaultBaseURL)")
+            assertionFailure("failed to create url from \(DefaultBaseURL)")
+            return
         }
         
         guard let request = URLRequest.makeHTTPRequest(
@@ -27,7 +28,8 @@ struct UserAPI {
             method: HTTPMehtod.get,
             body: nil
         ) else {
-            fatalError("failed to create get user URL")
+            assertionFailure("failed to create get user URL")
+            return
         }
         
         apiRequester.doRequest(request: request) { result in
