@@ -15,7 +15,7 @@ enum HTTPMehtod: String {
 }
 
 protocol NetworkRequesterProtocol {
-    func doRequest(request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void)
+    func doRequest(request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) -> URLSessionTask
 }
 
 enum NetworkError: Error {
@@ -27,7 +27,7 @@ class NetworkRequester: NetworkRequesterProtocol {
     func doRequest(
         request: URLRequest,
         handler: @escaping(Result<Data, Error>) -> Void
-    ) {
+    ) -> URLSessionTask {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 handler(.failure(error))
@@ -55,5 +55,6 @@ class NetworkRequester: NetworkRequesterProtocol {
         }
         
         task.resume()
+        return task
     }
 }

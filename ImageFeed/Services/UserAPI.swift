@@ -32,7 +32,7 @@ struct UserAPI {
             return
         }
         
-        apiRequester.doRequest(request: request) { result in
+        _ = apiRequester.doRequest(request: request) { result in
             switch result {
             case .failure(let error):
                 handler(.failure(error))

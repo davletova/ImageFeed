@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 let showAuthView = "ShowAuthView"
 let showImageListView = "ShowImageListView"
@@ -25,6 +26,8 @@ class SplashViewController: UIViewController {
             self.apiRequester = APIRequester(accessToken: token)
             self.userAPI = UserAPI(apiRequester: self.apiRequester!)
             
+            ProgressHUD.show()
+            
             self.userAPI?.getUser() { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -37,6 +40,8 @@ class SplashViewController: UIViewController {
                             return
                         }
                     case (.success(let user)):
+                        ProgressHUD.dismiss()
+                        
                         self.user = user
                         self.switchToTabBarController()
                     }

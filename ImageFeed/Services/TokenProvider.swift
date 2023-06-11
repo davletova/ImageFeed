@@ -17,6 +17,16 @@ struct BearerTokenProvider: TokenProviderProtocol {
     private let networkClient: NetworkRequesterProtocol = NetworkRequester()
     
     func getToken(code: String, handler: @escaping(Result<AccessTokenResponse, Error>) -> Void) {
+        var task: URLSessionTask?
+        var lastCode: String?
+        
+        assert(Thread.isMainThread)
+        if lastCode == code {
+            return
+        }
+        task?.cancel()
+        lastCode = code
+        
         guard let authURL = authTokenRequestURL(code: code) else {
             return
         }
@@ -31,12 +41,14 @@ struct BearerTokenProvider: TokenProviderProtocol {
             return
         }
         
-        networkClient.doRequest(request: request) { result in
+        let urlSessionTask = networkClient.doRequest(request: request) { result in
             switch result {
             case .failure(let error):
                 assertionFailure("getToken doRequest failed with error: \(error)")
             case .success(let data):
                 do {
+                    task = nil
+                    
                     let accessTokenResponse = try JSONDecoder().decode(AccessTokenResponse.self, from: data)
                     handler(.success(accessTokenResponse))
                 } catch {
@@ -45,6 +57,8 @@ struct BearerTokenProvider: TokenProviderProtocol {
                 }
             }
         }
+        
+        task = urlSessionTask
     }
     
     func authTokenRequestURL(code: String) -> URL? {

@@ -16,11 +16,11 @@ class APIRequester: NetworkRequester {
         self.accessToken = accessToken
     }
     
-    override func doRequest(request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) {
+    override func doRequest(request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) -> URLSessionTask {
         var request = request
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: tokenHTTPHeaderField)
         
-        super.doRequest(request: request, handler: handler)
+        return super.doRequest(request: request, handler: handler)
     }
     
     func setToken(_ token: String) {
