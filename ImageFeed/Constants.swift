@@ -7,11 +7,11 @@
 
 import Foundation
 
-let AccessKey = "<ваш Access Key>"
+let AccessKey = "0mnJFOFHu-fcr2ejUhKYQ0k_TUgy3m2bAV0khOxc5z4"
 
-let SecretKey = "<ваш Secret Key>"
+let SecretKey = "OrhUhP34b4x-nxX4xAzfFmLc-5a1U7jPmafhM2cWFkg"
 
-let RedirectURI = "<ваш Redirect URI>"
+let RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
 
 let AccessScope = "public+read_user+write_likes"
 
