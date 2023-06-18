@@ -12,41 +12,19 @@ let showAuthView = "ShowAuthView"
 let showImageListView = "ShowImageListView"
 let tabBarViewController = "TabBarViewController"
 
+let networkErrorAlertTitle = "Что-то пошло не так"
+let networkErrorAlertMessage = "Не удалось войти в систему"
+let networkErrorAlertButtonText = "OK"
+
 class SplashViewController: UIViewController {
-    var user: User?
-    
-    let auth2TokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
-    var apiRequester: APIRequester?
-    var userAPI: UserAPI?
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let token = auth2TokenStorage.accessToken {
-            self.apiRequester = APIRequester(accessToken: token)
-            self.userAPI = UserAPI(apiRequester: self.apiRequester!)
+        if OAuth2TokenStorage.shared.accessToken != nil {
+            UIBlockingProgressHUD.show()
             
-            ProgressHUD.show()
-            
-            self.userAPI?.getUser() { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case (.failure(let error)):
-                        if let err = error as? NetworkError,
-                           err == NetworkError.AccessDenied {
-                            self.performSegue(withIdentifier: showAuthView, sender: nil)
-                        } else {
-                            assertionFailure("get user failed with error: \(error)")
-                            return
-                        }
-                    case (.success(let user)):
-                        ProgressHUD.dismiss()
-                        
-                        self.user = user
-                        self.switchToTabBarController()
-                    }
-                }
-            }
+            getUser()
         } else {
             self.performSegue(withIdentifier: showAuthView, sender: nil)
         }
@@ -66,6 +44,61 @@ class SplashViewController: UIViewController {
             super.prepare(for: segue, sender: sender)
         }
     }
+    
+    private func getUser() {
+        ProfileService.shared.getUser() { result in
+            DispatchQueue.main.async {
+                print("inside getUser, DispatchQueue.main.sync")
+                switch result {
+                case (.failure(let error)):
+                    if let err = error as? NetworkError,
+                       err == NetworkError.AccessDenied {
+                        self.performSegue(withIdentifier: showAuthView, sender: nil)
+                    } else {
+                        
+                        
+                        let alert = UIAlertController(title: networkErrorAlertTitle, message: networkErrorAlertMessage, preferredStyle: .alert)
+                        let action = UIAlertAction(title: networkErrorAlertButtonText, style: .default) {_ in
+                            print("failed")
+                        }
+                        
+                        alert.addAction(action)
+                        
+                        self.present(alert, animated: true)
+                        
+                        
+                        print("get user failed with error: \(error)")
+                        break
+                    }
+                case (.success(let getUserResponse)):
+                    self.getProfileImageURL(username: getUserResponse.username)
+                }
+            }
+        }
+    }
+    
+    private func getProfileImageURL(username: String) {
+        ProfileImageService.shared.getUserImage(username: username) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    self.showAlert()
+                    print("get profile image's URL failed with error: \(error.localizedDescription)")
+                    return
+                case .success(let profileImageURL):
+                    NotificationCenter.default
+                        .post(
+                            name: ProfileImageService.DidChangeNotification,
+                            object: self,
+                            userInfo: ["URL": profileImageURL]
+                        )
+                }
+                
+                UIBlockingProgressHUD.dismiss()
+                self.switchToTabBarController()
+            }
+        }
+    }
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
@@ -78,10 +111,19 @@ extension SplashViewController: AuthViewControllerDelegate {
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: tabBarViewController)
         
-        if let profileView = tabBarController.children[1] as? ProfileViewController {
-            profileView.user = self.user
+        window.rootViewController = tabBarController
+    }
+}
+
+extension SplashViewController {
+    private func showAlert() {
+        let alert = UIAlertController(title: networkErrorAlertTitle, message: networkErrorAlertMessage, preferredStyle: .alert)
+        let action = UIAlertAction(title: networkErrorAlertButtonText, style: .default) { _ in
+            print("OK tab")
         }
         
-        window.rootViewController = tabBarController
+        alert.addAction(action)
+        
+        self.present(alert, animated: true)
     }
 }

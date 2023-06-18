@@ -13,13 +13,27 @@ protocol TokenProviderProtocol {
     func getToken(code: String, handler: @escaping(Result<AccessTokenResponse, Error>) -> Void)
 }
 
-struct BearerTokenProvider: TokenProviderProtocol {
+struct AccessTokenResponse: Codable {
+    let accessToken: String
+    let tokenType: String
+    let scope: String
+    let createdAt: Int64
+    
+    private enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case tokenType = "token_type"
+        case scope = "scope"
+        case createdAt = "created_at"
+    }
+}
+
+final class BearerTokenProvider: TokenProviderProtocol {
     private let networkClient: NetworkRequesterProtocol = NetworkRequester()
     
+    var task: URLSessionTask?
+    var lastCode: String?
+    
     func getToken(code: String, handler: @escaping(Result<AccessTokenResponse, Error>) -> Void) {
-        var task: URLSessionTask?
-        var lastCode: String?
-        
         assert(Thread.isMainThread)
         if lastCode == code {
             return
@@ -41,20 +55,14 @@ struct BearerTokenProvider: TokenProviderProtocol {
             return
         }
         
-        let urlSessionTask = networkClient.doRequest(request: request) { result in
+        let urlSessionTask = networkClient.doRequest(request: request) { (result: Result<AccessTokenResponse, Error>) in
             switch result {
             case .failure(let error):
                 assertionFailure("getToken doRequest failed with error: \(error)")
-            case .success(let data):
-                do {
-                    task = nil
-                    
-                    let accessTokenResponse = try JSONDecoder().decode(AccessTokenResponse.self, from: data)
-                    handler(.success(accessTokenResponse))
-                } catch {
-                    print("failed to decode accessTokenResponse")
-                    handler(.failure(error))
-                }
+            case .success(let response):
+                self.task = nil
+                
+                handler(.success(response))
             }
         }
         

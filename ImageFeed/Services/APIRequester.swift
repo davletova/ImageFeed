@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
 
 let tokenHTTPHeaderField = "Authorization"
 
@@ -16,7 +17,7 @@ class APIRequester: NetworkRequester {
         self.accessToken = accessToken
     }
     
-    override func doRequest(request: URLRequest, handler: @escaping (Result<Data, Error>) -> Void) -> URLSessionTask {
+    override func doRequest<T: Decodable>(request: URLRequest, handler: @escaping (Result<T, Error>) -> Void) -> URLSessionTask {
         var request = request
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: tokenHTTPHeaderField)
         
