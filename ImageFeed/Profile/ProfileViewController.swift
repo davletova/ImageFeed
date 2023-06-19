@@ -70,8 +70,6 @@ extension ProfileViewController {
         imageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userAvatar = imageView
-        
-        
     }
     
     private func addUserName() {

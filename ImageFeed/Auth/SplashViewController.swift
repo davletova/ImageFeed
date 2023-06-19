@@ -8,7 +8,6 @@
 import UIKit
 import ProgressHUD
 
-let showAuthView = "ShowAuthView"
 let showImageListView = "ShowImageListView"
 let tabBarViewController = "TabBarViewController"
 
@@ -21,27 +20,16 @@ class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        view.backgroundColor = UIColor(named: "YP Black")
+        
+        createLogo()
+        
         if OAuth2TokenStorage.shared.accessToken != nil {
             UIBlockingProgressHUD.show()
             
             getUser()
         } else {
-            self.performSegue(withIdentifier: showAuthView, sender: nil)
-        }
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthView {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else {
-                assertionFailure("Failed to prepare for \(showAuthView)")
-                return
-            }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
+            goToAuth()
         }
     }
     
@@ -53,7 +41,7 @@ class SplashViewController: UIViewController {
                 case (.failure(let error)):
                     if let err = error as? NetworkError,
                        err == NetworkError.AccessDenied {
-                        self.performSegue(withIdentifier: showAuthView, sender: nil)
+                        self.goToAuth()
                     } else {
                         
                         
@@ -99,6 +87,18 @@ class SplashViewController: UIViewController {
             }
         }
     }
+    
+    private func goToAuth() {
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController
+        else {
+            assertionFailure("Что-то пошло не так")
+            return
+        }
+        authViewController.delegate = self
+        authViewController.modalPresentationStyle = .fullScreen
+        self.present(authViewController, animated: true)
+    }
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
@@ -125,5 +125,21 @@ extension SplashViewController {
         alert.addAction(action)
         
         self.present(alert, animated: true)
+    }
+}
+
+extension SplashViewController {
+    private func createLogo() {
+        let imageView = UIImageView(image: UIImage(named: "Vector"))
+        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(imageView)
+        
+        imageView.heightAnchor.constraint(equalToConstant: 76).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 73).isActive = true
+        
+        imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
 }
