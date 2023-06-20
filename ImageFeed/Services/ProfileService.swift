@@ -43,7 +43,6 @@ final class ProfileService {
     }
     
     func getUser(handler: @escaping(Result<GetUserResponse, Error>) -> Void) {
-        print("start getUser")
         guard let baseURL = URL(string: DefaultBaseURL) else {
             assertionFailure("failed to create url from \(DefaultBaseURL)")
             return
@@ -72,9 +71,9 @@ final class ProfileService {
     }
     
     private func updateProfileDetails(user: GetUserResponse) {
-        var name = "\(user.firstName) \(user.lastName ?? "")"
-        var login = user.username
-        var description = user.bio ?? ""
+        let name = "\(user.firstName) \(user.lastName ?? "")"
+        let login = user.username
+        let description = user.bio ?? ""
         
         profile = Profile(name: name, login: login, description: description)
     }

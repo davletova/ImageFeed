@@ -36,24 +36,14 @@ class SplashViewController: UIViewController {
     private func getUser() {
         ProfileService.shared.getUser() { result in
             DispatchQueue.main.async {
-                print("inside getUser, DispatchQueue.main.sync")
                 switch result {
                 case (.failure(let error)):
                     if let err = error as? NetworkError,
                        err == NetworkError.AccessDenied {
                         self.goToAuth()
                     } else {
-                        
-                        
-                        let alert = UIAlertController(title: networkErrorAlertTitle, message: networkErrorAlertMessage, preferredStyle: .alert)
-                        let action = UIAlertAction(title: networkErrorAlertButtonText, style: .default) {_ in
-                            print("failed")
-                        }
-                        
-                        alert.addAction(action)
-                        
-                        self.present(alert, animated: true)
-                        
+                        UIBlockingProgressHUD.dismiss()
+                        self.showAlert()
                         
                         print("get user failed with error: \(error)")
                         break
@@ -118,9 +108,7 @@ extension SplashViewController: AuthViewControllerDelegate {
 extension SplashViewController {
     private func showAlert() {
         let alert = UIAlertController(title: networkErrorAlertTitle, message: networkErrorAlertMessage, preferredStyle: .alert)
-        let action = UIAlertAction(title: networkErrorAlertButtonText, style: .default) { _ in
-            print("OK tab")
-        }
+        let action = UIAlertAction(title: networkErrorAlertButtonText, style: .default) {_ in }
         
         alert.addAction(action)
         

@@ -97,6 +97,14 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
+		4D207D692A42229A0048BB1B /* UIBlockingProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				4D8351D22A379B480042E166 /* UIBlockingProgressHUD.swift */,
+			);
+			path = UIBlockingProgressHUD;
+			sourceTree = "<group>";
+		};
 		4D2B4EC92A24CAAE00568F6A /* Auth */ = {
 			isa = PBXGroup;
 			children = (
@@ -164,6 +172,7 @@
 		4DF2F8122A0379B8005A85F6 /* ImageFeed */ = {
 			isa = PBXGroup;
 			children = (
+				4D207D692A42229A0048BB1B /* UIBlockingProgressHUD */,
 				4D1543FE2A40C6A200D43B0F /* TabBar */,
 				4D89EFC12A288F1300D9AB95 /* Helpers */,
 				4D89EFBE2A27C4BA00D9AB95 /* Models */,
@@ -180,7 +189,6 @@
 				4DF2F8212A0379BB005A85F6 /* Info.plist */,
 				4DF2F8272A03CF81005A85F6 /* .gitignore */,
 				4D12A2452A2333A000F4BA7B /* Constants.swift */,
-				4D8351D22A379B480042E166 /* UIBlockingProgressHUD.swift */,
 			);
 			path = ImageFeed;
 			sourceTree = "<group>";
