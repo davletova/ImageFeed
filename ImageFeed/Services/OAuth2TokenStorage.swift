@@ -6,23 +6,32 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
 
-private let accessTokenKey = "accessToken"
+private let accessTokenKeychainKey = "accessToken"
 
 protocol OAuth2TokenStorageProtocol {
     var accessToken: String? {get set}
 }
 
 class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
-    private let userDefaults = UserDefaults.standard
+    static let shared: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
     
     var accessToken: String? {
         get {
-            return userDefaults.string(forKey: accessTokenKey)
+            return KeychainWrapper.standard.string(forKey: accessTokenKeychainKey)
         }
         
         set {
-            userDefaults.set(newValue, forKey: accessTokenKey)
+            guard let newValue = newValue else {
+                assertionFailure("write accessToken: newValue is empty")
+                return
+            }
+            let isSuccess = KeychainWrapper.standard.set(newValue, forKey: accessTokenKeychainKey)
+            guard isSuccess else {
+                assertionFailure("failed to write access token in Keychain")
+                return
+            }
         }
     }
 }

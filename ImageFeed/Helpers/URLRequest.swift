@@ -34,6 +34,8 @@ extension URLRequest {
             request.httpBody = data
         }
         
+        request.timeoutInterval = 10
+        
         return request
     }
 }

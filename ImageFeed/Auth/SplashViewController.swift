@@ -6,60 +6,88 @@
 //
 
 import UIKit
+import ProgressHUD
 
-let showAuthView = "ShowAuthView"
 let showImageListView = "ShowImageListView"
 let tabBarViewController = "TabBarViewController"
 
+let networkErrorAlertTitle = "Что-то пошло не так"
+let networkErrorAlertMessage = "Не удалось войти в систему"
+let networkErrorAlertButtonText = "OK"
+
 class SplashViewController: UIViewController {
-    var user: User?
-    
-    let auth2TokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
-    var apiRequester: APIRequester?
-    var userAPI: UserAPI?
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let token = auth2TokenStorage.accessToken {
-            self.apiRequester = APIRequester(accessToken: token)
-            self.userAPI = UserAPI(apiRequester: self.apiRequester!)
+        view.backgroundColor = UIColor(named: "YP Black")
+        
+        createLogo()
+        
+        if OAuth2TokenStorage.shared.accessToken != nil {
+            UIBlockingProgressHUD.show()
             
-            self.userAPI?.getUser() { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case (.failure(let error)):
-                        if let err = error as? NetworkError,
-                           err == NetworkError.AccessDenied {
-                            self.performSegue(withIdentifier: showAuthView, sender: nil)
-                        } else {
-                            assertionFailure("get user failed with error: \(error)")
-                            return
-                        }
-                    case (.success(let user)):
-                        self.user = user
-                        self.switchToTabBarController()
-                    }
-                }
-            }
+            getUser()
         } else {
-            self.performSegue(withIdentifier: showAuthView, sender: nil)
+            goToAuth()
         }
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthView {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else {
-                assertionFailure("Failed to prepare for \(showAuthView)")
-                return
+    private func getUser() {
+        ProfileService.shared.getUser() { result in
+            DispatchQueue.main.async {
+                switch result {
+                case (.failure(let error)):
+                    if let err = error as? NetworkError,
+                       err == NetworkError.AccessDenied {
+                        self.goToAuth()
+                    } else {
+                        UIBlockingProgressHUD.dismiss()
+                        self.showAlert()
+                        
+                        print("get user failed with error: \(error)")
+                        break
+                    }
+                case (.success(let getUserResponse)):
+                    self.getProfileImageURL(username: getUserResponse.username)
+                }
             }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
         }
+    }
+    
+    private func getProfileImageURL(username: String) {
+        ProfileImageService.shared.getUserImage(username: username) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    self.showAlert()
+                    print("get profile image's URL failed with error: \(error.localizedDescription)")
+                    return
+                case .success(let profileImageURL):
+                    NotificationCenter.default
+                        .post(
+                            name: ProfileImageService.DidChangeNotification,
+                            object: self,
+                            userInfo: ["URL": profileImageURL]
+                        )
+                }
+                
+                UIBlockingProgressHUD.dismiss()
+                self.switchToTabBarController()
+            }
+        }
+    }
+    
+    private func goToAuth() {
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController
+        else {
+            assertionFailure("Что-то пошло не так")
+            return
+        }
+        authViewController.delegate = self
+        authViewController.modalPresentationStyle = .fullScreen
+        self.present(authViewController, animated: true)
     }
 }
 
@@ -73,10 +101,33 @@ extension SplashViewController: AuthViewControllerDelegate {
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: tabBarViewController)
         
-        if let profileView = tabBarController.children[1] as? ProfileViewController {
-            profileView.user = self.user
-        }
-        
         window.rootViewController = tabBarController
+    }
+}
+
+extension SplashViewController {
+    private func showAlert() {
+        let alert = UIAlertController(title: networkErrorAlertTitle, message: networkErrorAlertMessage, preferredStyle: .alert)
+        let action = UIAlertAction(title: networkErrorAlertButtonText, style: .default) {_ in }
+        
+        alert.addAction(action)
+        
+        self.present(alert, animated: true)
+    }
+}
+
+extension SplashViewController {
+    private func createLogo() {
+        let imageView = UIImageView(image: UIImage(named: "Vector"))
+        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(imageView)
+        
+        imageView.heightAnchor.constraint(equalToConstant: 76).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 73).isActive = true
+        
+        imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
 }
