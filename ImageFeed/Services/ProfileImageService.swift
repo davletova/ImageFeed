@@ -22,7 +22,7 @@ struct GetPublicUserResponse: Decodable {
 }
 
 final class ProfileImageService {
-    var apiRequester: APIRequester
+    private var apiRequester: APIRequester
     private (set) var avatarURL: String = ""
     
     static let DidChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")

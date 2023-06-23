@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftKeychainWrapper
 
 let tokenHTTPHeaderField = "Authorization"
 
