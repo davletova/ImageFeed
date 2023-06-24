@@ -37,24 +37,29 @@ final class WebViewViewController: UIViewController {
         
         webView.navigationDelegate = self
 
-        guard var urlComponents = URLComponents(string: UnsplashAuthorizeURL) else {
-            assertionFailure("create url components for UnsplashAuthorizeURL failed")
+        guard let baseURL = URL(string: UnsplashAuthorizeURL) else {
+            assertionFailure("failed to create URL from string \(UnsplashAuthorizeURL)")
             return
         }
-        urlComponents.queryItems = [
+        
+        let queryItems = [
             URLQueryItem(name: "client_id", value: AccessKey),
             URLQueryItem(name: "redirect_uri", value: RedirectURI),
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "scope", value: AccessScope)
         ]
 
-        guard let finalURL = urlComponents.url else {
-            assertionFailure("create UnsplashAuthorizeURL failed")
+        
+        guard let request = URLRequest.makeHTTPRequest(
+            baseUrl: baseURL,
+            path: nil,
+            method: HTTPMehtod.get,
+            queryItems: queryItems,
+            body: nil) else {
+            assertionFailure("failed to create UnsplashAuthorizeURL with query items")
             return
         }
         
-        let request = URLRequest(url: finalURL)
-
         webView.load(request)
 
         updateProgress()

@@ -7,6 +7,8 @@
 
 import Foundation
 
+let getUserPath = "/me"
+
 struct GetUserResponse: Codable {
     let id: String
     let username: String
@@ -26,7 +28,6 @@ struct GetUserResponse: Codable {
 }
 
 final class ProfileService {
-    let getUserPath = "/me"
     var apiRequester: APIRequester
     
     var profile: Profile?
@@ -52,6 +53,7 @@ final class ProfileService {
             baseUrl: baseURL,
             path: getUserPath,
             method: HTTPMehtod.get,
+            queryItems: nil,
             body: nil
         ) else {
             assertionFailure("failed to create get user URL")

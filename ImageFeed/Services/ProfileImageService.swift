@@ -47,6 +47,7 @@ final class ProfileImageService {
             baseUrl: baseUrl,
             path: "/users/\(username)",
             method: HTTPMehtod.get,
+            queryItems: nil,
             body: nil) else {
                 assertionFailure("faield to create getPublicUser request")
                 return

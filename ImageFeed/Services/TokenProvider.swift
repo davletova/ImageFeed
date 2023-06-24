@@ -49,6 +49,7 @@ final class BearerTokenProvider: TokenProviderProtocol {
             baseUrl: authURL,
             path: nil,
             method: HTTPMehtod.post,
+            queryItems: nil,
             body: nil
         ) else {
             assertionFailure("failed to make getToken request")

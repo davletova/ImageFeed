@@ -12,6 +12,7 @@ extension URLRequest {
         baseUrl: URL,
         path: String?,
         method: HTTPMehtod,
+        queryItems: [URLQueryItem]?,
         body: Encodable?
     ) -> URLRequest? {
         var url = baseUrl
@@ -24,6 +25,19 @@ extension URLRequest {
             url = createURL
         }
         
+        if let qi = queryItems,
+           var urlComponents = URLComponents(string: url.absoluteString)
+        {
+            urlComponents.queryItems = qi
+            
+            if let urlWithQueryItems = urlComponents.url {
+                url = urlWithQueryItems
+            } else {
+                assertionFailure("failed to create url with query items")
+                return nil
+            }
+        }
+ 
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         request.httpMethod = method.rawValue
         if let body = body {
