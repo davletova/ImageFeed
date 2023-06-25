@@ -13,6 +13,8 @@ class ImagesListViewController: UIViewController {
     private let photosName: [String] = Array(0..<20).map{"\($0)"}
     private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     
+    private var imageListService: ImagesListService?
+    
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -22,6 +24,12 @@ class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        guard let accessToken = OAuth2TokenStorage.shared.accessToken else {
+            assertionFailure("ImagesListViewController: access token not found")
+            return
+        }
+        imageListService = ImagesListService(apiRequester: APIRequester(accessToken: accessToken))
         
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
@@ -47,6 +55,12 @@ class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photosName.count
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        imageListService?.getPhotosNextPage() { response in
+            
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

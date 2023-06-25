@@ -12,7 +12,7 @@ struct Photo {
     let size: CGSize
     let createdAt: Date?
     let welcomeDescription: String?
-    let thumbImageURL: String
-    let largeImageURL: String
+    let thumbImageURL: String //small
+    let largeImageURL: String //full
     let isLiked: Bool
 } 
