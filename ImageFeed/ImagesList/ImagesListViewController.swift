@@ -12,10 +12,12 @@ class ImagesListViewController: UIViewController {
     @IBOutlet weak private var tableView: UITableView!
     
     private var photos: [Photo] = []
+    private var oldPhotosCount = 0
+    
+    static let DidChangeNotification = Notification.Name(rawValue: "ImageForSingleImageViewLoad")
     
     private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     
-    private var imageListServiceObserver: NSObjectProtocol?
     private var imageListService: ImagesListService?
     
     private lazy var dateFormatter: DateFormatter = {
@@ -27,21 +29,6 @@ class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("viewDidLoad")
-        
-        imageListServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ImagesListService.DidChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                guard let self = self else {
-                    print("self nil")
-                    return
-                }
-                self.updateTableViewAnimated()
-            }
     
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         
@@ -51,18 +38,25 @@ class ImagesListViewController: UIViewController {
         }
         imageListService = ImagesListService(apiRequester: APIRequester(accessToken: accessToken))
         imageListService?.getPhotosNextPage() { response in
-            switch response {
-            case .failure(let error):
-                assertionFailure("failed to getPhotosNextPage with error: \(error)")
-                break
-            case .success(let photos):
-                self.photos.append(contentsOf: photos)
+            DispatchQueue.main.async {
+                switch response {
+                case .failure(let error):
+                    assertionFailure("failed to getPhotosNextPage with error: \(error)")
+                    break
+                case .success(let photos):
+                    
+                    self.photos.append(contentsOf: photos)
+                    
+                    self.updateTableViewAnimated()
+                }
             }
         }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == ShowSingleImageSegueIdentifier {
+            print("ShowSingleImageSegueIdentifier start")
+            
             guard let viewController = segue.destination as? SingleImageViewController else {
                 print("segue prepare: segue.destination has an unexpected type")
                 return
@@ -73,66 +67,16 @@ class ImagesListViewController: UIViewController {
             }
             
             if indexPath.row >= photos.count {
-                print("prepare")
+                print("indexPath.row >= photos.count")
                 return
             }
             
-            let imageView = UIImageView()
-            
-            do {
-                try loadImage(to: imageView, url: photos[indexPath.row].largeImageURL) { result in
-                    switch result {
-                    case .success(_):
-                        DispatchQueue.main.async {
-                            viewController.image = imageView.image
-                        }
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
-            } catch {
-                print("prepare error: \(error)")
+            guard let url = URL(string: photos[indexPath.row].largeImageURL) else {
+                assertionFailure("failed to create url from: \(photos[indexPath.row].largeImageURL)")
                 return
             }
             
-//            imageListService?.getPhotosNextPage() { response in
-//                switch response {
-//                case .failure(let error):
-//                    assertionFailure("failed to getPhotosNextPage with error: \(error)")
-//                    break
-//                case .success(let photos):
-//                    self.photos = photos
-//                }
-//            }
-//            guard let photoURL = URL(string: photos[indexPath.row].largeImageURL) else {
-//                assertionFailure("failed to create URL from \(photos[indexPath.row].largeImageURL)")
-//                return
-//            }
-//
-//            let imageView = UIImageView()
-//            let processor = RoundCornerImageProcessor(cornerRadius: 16)
-//
-//            imageView.kf.setImage(
-//                with: photoURL,
-//                placeholder: UIImage(named: "scribble.variable"),
-//                options: [.processor(processor)]
-//            ) { result in
-//                imageView.kf.indicatorType = .none
-//
-//                switch result {
-//                case .success(_):
-//                    viewController.image = imageView.image
-//                case .failure(let error):
-//                    print(error)
-//                }
-//            }
-//
-//            imageView.kf.indicatorType = .activity
-            
-            
-            
-//            let image = UIImage(named: photosName[indexPath.row])
-//            viewController.image = image
+            viewController.imageURL = url
         } else {
             super.prepare(for: segue, sender: sender)
         }
@@ -141,21 +85,26 @@ class ImagesListViewController: UIViewController {
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("numberOfRowsInSection: \(photos.count)")
-       return photos.count
+        return photos.count
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-      
-        if indexPath.row == tableView.numberOfRows(inSection: 0) - 1 {
+        if indexPath.row == photos.count - 1 {
+            
+            print("indexPath.row == photos.count - 1")
+            
             imageListService?.getPhotosNextPage() { response in
-                switch response {
-                case .failure(let error):
-                    assertionFailure("failed to getPhotosNextPage with error: \(error)")
-                    break
-                case .success(let photos):
-//                    self.photos = photos
-                    break
+                print("start getPhotosNextPage closure ")
+                
+                DispatchQueue.main.async {
+                    switch response {
+                    case .failure(let error):
+                        assertionFailure("failed to getPhotosNextPage with error: \(error)")
+                        break
+                    case .success(let photos):
+                        self.photos.append(contentsOf: photos)
+                        self.updateTableViewAnimated()
+                    }
                 }
             }
         }
@@ -227,25 +176,16 @@ extension ImagesListViewController: UITableViewDelegate {
 
 extension ImagesListViewController {
     private func updateTableViewAnimated() {
-        let oldCout = photos.count
-            
-            
-            let deleteCount = min(self.tableView.numberOfRows(inSection: 0), self.photos.count)
-            self.tableView.performBatchUpdates {
-                self.tableView.deleteRows(at: self.getIndexPathes(deleteCount), with: .automatic)
-                self.tableView.insertRows(at: self.getIndexPathes(deleteCount), with: .automatic)
+        if oldPhotosCount != photos.count {
+            let indexPaths = (oldPhotosCount..<photos.count).map{ i in
+                IndexPath(row: i, section: 0)
             }
-        
-    }
-    
-    private func getIndexPathes(_ count: Int) -> [IndexPath] {
-        var result: [IndexPath] = []
-        
-        for i in 0..<count {
-            result.append(IndexPath(row: i, section: 0))
+            self.tableView.performBatchUpdates {
+                self.tableView.insertRows(at: indexPaths, with: .automatic)
+            } completion: { _ in }
+            
+            oldPhotosCount = photos.count
         }
-        
-        return result
     }
 }
 
@@ -266,6 +206,7 @@ extension ImagesListViewController {
         let processor = RoundCornerImageProcessor(cornerRadius: 16)
         
         imageView.kf.indicatorType = .activity
+        imageView.kf.indicator?.view.backgroundColor = .white
         imageView.kf.setImage(
             with: photoURL,
             placeholder: UIImage(named: "Stub"),

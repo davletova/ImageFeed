@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Nvt-ni-eej">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Nvt-ni-eej">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -134,7 +134,7 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4EH-DE-Us5">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="414" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="xxk-W7-Ji4">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="414" translatesAutoresizingMaskIntoConstraints="NO" id="xxk-W7-Ji4">
                                         <rect key="frame" x="162" y="0.0" width="206" height="195"/>
                                     </imageView>
                                 </subviews>
@@ -151,7 +151,7 @@
                                 </connections>
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SPr-Qh-qDg">
-                                <rect key="frame" x="16" y="67" width="48" height="48"/>
+                                <rect key="frame" x="16" y="8" width="48" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="72G-PM-gxQ"/>
                                     <constraint firstAttribute="width" constant="48" id="Q9y-k8-Jnc"/>
@@ -164,7 +164,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CE9-bZ-xFh" userLabel="Sharing Button">
-                                <rect key="frame" x="171.66666666666666" y="732" width="50" height="50"/>
+                                <rect key="frame" x="171.66666666666666" y="766" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="dQw-Ci-myy"/>
                                     <constraint firstAttribute="width" constant="50" id="x20-nz-1e9"/>
@@ -258,7 +258,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="ZXO-TE-4Ki"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="U1e-V1-pQR">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -279,7 +279,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="38H-9o-p7M">
-                                <rect key="frame" x="0.0" y="113" width="393" height="739"/>
+                                <rect key="frame" x="0.0" y="54" width="393" height="798"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <wkWebViewConfiguration key="configuration">
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
@@ -287,7 +287,7 @@
                                 </wkWebViewConfiguration>
                             </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rd8-Xp-WUg">
-                                <rect key="frame" x="0.0" y="59" width="130" height="42"/>
+                                <rect key="frame" x="0.0" y="0.0" width="130" height="42"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="130" id="9kU-eh-9Z4"/>
                                     <constraint firstAttribute="height" constant="42" id="bQ8-JP-7jo"/>
@@ -301,7 +301,7 @@
                                 </connections>
                             </button>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ifd-Jw-SWM">
-                                <rect key="frame" x="0.0" y="109" width="393" height="4"/>
+                                <rect key="frame" x="0.0" y="50" width="393" height="4"/>
                                 <color key="tintColor" name="YP Black"/>
                             </progressView>
                         </subviews>
@@ -332,7 +332,6 @@
         <!--Splash View Controller-->
         <scene sceneID="20f-ya-CQC">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="pVf-cq-bX4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <viewController id="Nvt-ni-eej" customClass="SplashViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Xgi-Hy-fjN">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
@@ -359,12 +358,12 @@
                         <segue destination="Mox-he-03k" kind="presentation" identifier="ShowImageListView" modalPresentationStyle="fullScreen" id="LKv-Ka-rUb"/>
                     </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pVf-cq-bX4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1307.6335877862596" y="-204.22535211267606"/>
         </scene>
     </scenes>
     <resources>
-        <image name="0" width="200" height="132"/>
         <image name="Active" width="44" height="44"/>
         <image name="Logo_of_Unsplash" width="60" height="60"/>
         <image name="backward" width="24" height="24"/>

@@ -6,14 +6,10 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
-    var image: UIImage! {
-        didSet(newValue) {
-            guard let image = newValue else { return }
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var imageURL: URL?
     
     @IBOutlet private var sharingButton: UIButton!
     @IBOutlet private var scrollView: UIScrollView!
@@ -25,7 +21,7 @@ final class SingleImageViewController: UIViewController {
     }
     
     @IBAction func didTapShareButton() {
-        let item = [image]
+        let item = [imageView.image]
         let activityController = UIActivityViewController(activityItems: item as [Any], applicationActivities: nil)
         
         self.present(activityController, animated: true)
@@ -34,9 +30,31 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
-       	
+        
         super.viewDidLoad()
-        imageView.image = image
+        
+        guard let url = imageURL else {
+            assertionFailure("SingleImageViewController: imageURL is empty")
+            return
+        }
+        
+        let processor = RoundCornerImageProcessor(cornerRadius: 16)
+        
+        imageView.kf.indicatorType = .activity
+        imageView.kf.indicator?.view.backgroundColor = .white
+        
+        imageView.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "Stub"),
+            options: [.processor(processor)]
+        ) { result in
+            switch result {
+            case .success(_):
+                self.rescaleAndCenterImageInScrollView(image: self.imageView.image!)
+            case .failure(let error):
+                print(error)
+            }
+        }
         
         guard let image = imageView.image else { return }
         rescaleAndCenterImageInScrollView(image: image)
@@ -49,7 +67,7 @@ extension SingleImageViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        rescaleAndCenterImageInScrollView(image: image)
+        rescaleAndCenterImageInScrollView(image: imageView.image!)
     }
 }
 

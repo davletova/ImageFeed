@@ -35,10 +35,7 @@ struct UnsplashPhoto: Codable {
 final class ImagesListService {
     private let apiRequester: APIRequester
     
-    private (set) var photos: [Photo] = []
     private var lastLoadedPage: Int?
-    
-    static let DidChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     
     private var dataTask: URLSessionTask?
     
@@ -85,23 +82,17 @@ final class ImagesListService {
                 case .success(let response):
                     self.lastLoadedPage = nextPage
                     
-                    var photosPage: [Photo] = []
+                    var photosPerPage: [Photo] = []
                     for unsplashPhoto in response {
                         guard let photo = self.convertUnsplashPhotoToPhoto(unsplashPhoto: unsplashPhoto) else {
                             print("failed to convert unsplashPhoto to Photo")
                             continue
                         }
                         
-                        photosPage.append(photo)
+                        photosPerPage.append(photo)
                     }
-                    self.photos.append(contentsOf: photosPage)
                     
-                    handler(.success(photosPage))
-                    NotificationCenter.default
-                        .post(
-                            name: ImagesListService.DidChangeNotification,
-                            object: self
-                        )
+                    handler(.success(photosPerPage))
                 }
             }
         }
