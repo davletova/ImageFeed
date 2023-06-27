@@ -17,7 +17,7 @@ struct UnsplashPhoto: Codable {
     var width: Int
     var height: Int
     var createdAt: String
-    var description: String
+    var description: String?
     var urls: [String: String]
     var likedByUser: Bool
     
@@ -78,26 +78,31 @@ final class ImagesListService {
         dataTask = apiRequester.doRequest(request: request) { (result: Result<[UnsplashPhoto], Error>) in
             self.dataTask = nil
             
-            switch result {
-            case .failure(let error):
-                handler(.failure(error))
-            case .success(let response):
-                for unsplashPhoto in response {
-                    guard let photo = self.convertUnsplashPhotoToPhoto(unsplashPhoto: unsplashPhoto) else {
-                        print("failed to convert unsplashPhoto to Photo")
-                        continue
-                    }
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    handler(.failure(error))
+                case .success(let response):
+                    self.lastLoadedPage = nextPage
                     
-                    DispatchQueue.main.async {
-                        self.photos.append(photo)
-                        NotificationCenter.default
-                            .post(
-                                name: ImagesListService.DidChangeNotification,
-                                object: self
-                            )
+                    var photosPage: [Photo] = []
+                    for unsplashPhoto in response {
+                        guard let photo = self.convertUnsplashPhotoToPhoto(unsplashPhoto: unsplashPhoto) else {
+                            print("failed to convert unsplashPhoto to Photo")
+                            continue
+                        }
+                        
+                        photosPage.append(photo)
                     }
+                    self.photos.append(contentsOf: photosPage)
+                    
+                    handler(.success(photosPage))
+                    NotificationCenter.default
+                        .post(
+                            name: ImagesListService.DidChangeNotification,
+                            object: self
+                        )
                 }
-                handler(.success(self.photos))
             }
         }
     }

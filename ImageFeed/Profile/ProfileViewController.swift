@@ -152,7 +152,6 @@ extension ProfileViewController {
         userAvatar.kf.setImage(with: url,
                                placeholder: noneAvatarImage,
                                options: [.processor(processor)]
-                               
         ) { result in
             switch result {
             case .success(_):

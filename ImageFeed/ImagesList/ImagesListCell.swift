@@ -14,6 +14,12 @@ final class ImageListCell: UITableViewCell {
     @IBOutlet private var date: UILabel!
     
     static let reuseIdentifier = "ImageListCell"
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        cellImageView.kf.cancelDownloadTask()
+    }
 }
 
 extension ImageListCell {
