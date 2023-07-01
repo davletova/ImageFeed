@@ -74,6 +74,9 @@
                                                         <attributedString key="attributedTitle"/>
                                                     </state>
                                                     <buttonConfiguration key="configuration" style="plain" image="Active" title=""/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked:" destination="0i8-1g-RdT" eventType="touchUpInside" id="hqi-kq-RMa"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

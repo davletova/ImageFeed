@@ -56,6 +56,7 @@ class NetworkRequester: NetworkRequesterProtocol {
                 handler(.success(result))
             }
             catch {
+                print("decode error")
                 handler(.failure(error))
             }
         }

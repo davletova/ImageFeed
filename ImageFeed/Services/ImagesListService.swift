@@ -122,3 +122,42 @@ extension ImagesListService {
         )
     }
 }
+
+extension ImagesListService {
+    struct ChangeLikeResponse: Decodable {
+        let photo: UnsplashPhoto
+        
+        private enum CodingKeys: String, CodingKey {
+            case photo = "photo"
+        }
+    }
+    
+    func changeLike(photo: Photo, _ completion: @escaping(Result<ChangeLikeResponse, Error>) -> Void) {
+        guard let baseURL = URL(string: DefaultBaseURL) else {
+            assertionFailure("failed to create URL from \(DefaultBaseURL)")
+            return
+        }
+        let path = "/photos/\(photo.id)/like"
+        let httpMethod: HTTPMehtod
+        
+        switch photo.isLiked {
+        case true:
+            httpMethod = HTTPMehtod.post
+        case false:
+            httpMethod = HTTPMehtod.delete
+        }
+        
+        guard let request = URLRequest.makeHTTPRequest(
+            baseUrl: baseURL,
+            path: path,
+            method: httpMethod,
+            queryItems: nil,
+            body: nil
+        ) else {
+            assertionFailure("failed to create like request")
+            return
+        }
+        
+        _ = apiRequester.doRequest(request: request, handler: completion)
+    }
+}

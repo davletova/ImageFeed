@@ -26,7 +26,6 @@ class SplashViewController: UIViewController {
         
         if OAuth2TokenStorage.shared.accessToken != nil {
             UIBlockingProgressHUD.show()
-            
             getUser()
         } else {
             goToAuth()
@@ -44,7 +43,6 @@ class SplashViewController: UIViewController {
                     } else {
                         UIBlockingProgressHUD.dismiss()
                         self.showAlert()
-                        
                         print("get user failed with error: \(error)")
                         break
                     }
