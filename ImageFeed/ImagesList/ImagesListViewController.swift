@@ -13,7 +13,6 @@ class ImagesListViewController: UIViewController {
     
     private var photos: [Photo] = []
     private var oldPhotosCount = 0
-    private var animationLayers = Set<CALayer>()
     
     static let DidChangeNotification = Notification.Name(rawValue: "ImageForSingleImageViewLoad")
     
@@ -21,34 +20,25 @@ class ImagesListViewController: UIViewController {
     
     private var imageListService: ImagesListService?
     
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .none
-        return formatter
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
     
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         
         guard let accessToken = OAuth2TokenStorage.shared.accessToken else {
-            assertionFailure("ImagesListViewController: access token not found")
+            print("ImagesListViewController: access token not found")
             return
         }
         imageListService = ImagesListService(apiRequester: APIRequester(accessToken: accessToken))
+        
         imageListService?.getPhotosNextPage() { response in
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             DispatchQueue.main.async() {
                 switch response {
                 case .failure(let error):
-                    assertionFailure("failed to getPhotosNextPage with error: \(error)")
+                    print("failed to getPhotosNextPage with error: \(error)")
                     break
                 case .success(let photos):
-                    
                     self.photos.append(contentsOf: photos)
-                    
                     self.updateTableViewAnimated()
                 }
             }
@@ -57,19 +47,17 @@ class ImagesListViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == ShowSingleImageSegueIdentifier {
-            print("ShowSingleImageSegueIdentifier start")
-            
             guard let viewController = segue.destination as? SingleImageViewController else {
-                print("segue prepare: segue.destination has an unexpected type")
+                assertionFailure("segue prepare: segue.destination has an unexpected type")
                 return
             }
             guard let indexPath = sender as? IndexPath else {
-                print("segue prepare: sender has an unexpected type")
+                assertionFailure("segue prepare: sender has an unexpected type")
                 return
             }
             
             if indexPath.row >= photos.count {
-                print("indexPath.row >= photos.count")
+                assertionFailure("segue prepare: indexPath.row >= photos.count")
                 return
             }
             
@@ -91,19 +79,12 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
-        print("cell frame: \(cell.frame.width)  \(cell.frame.height)  \(cell.frame.minX) \(cell.frame.minY)")
-//        let frame = CGRect(origin: .zero, size: CGSize(width: cell.frame.width, height: cell.frame.height))
-//        let gradient = createAnimationGradient(frame: frame)
-//        animationLayers.insert(gradient)
-//        cell.imageView?.layer.addSublayer(gradient)
-//
         if indexPath.row == photos.count - 1 {
             imageListService?.getPhotosNextPage() { response in
                 DispatchQueue.main.async {
                     switch response {
                     case .failure(let error):
-                        assertionFailure("failed to getPhotosNextPage with error: \(error)")
+                        print("failed to getPhotosNextPage with error: \(error)")
                         break
                     case .success(let photos):
                         self.photos.append(contentsOf: photos)
@@ -116,7 +97,6 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImageListCell.reuseIdentifier, for: indexPath)
-        
         guard let imagListCell = cell as? ImageListCell else {
             return UITableViewCell()
         }
@@ -129,33 +109,33 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
         if indexPath.row >= photos.count {
-            print("indexPath.row >= photos.count")
+            assertionFailure("configCell: indexPath.row >= photos.count")
             return
         }
-        
+
         let imageView = UIImageView()
         
         do {
             try loadImage(
                 to: imageView,
                 url: photos[indexPath.row].thumbImageURL
-            ) {
-                result in
-                    switch result {
-                    case .success(_):
-                        self.tableView.reloadRows(at: [indexPath], with: .automatic)
-                    case .failure(let error):
-                        print(error)
-                    }
+            ) { result in
+                switch result {
+                case .success(_):
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                case .failure(let error):
+                    print("load image failed with error: \(error)")
+                    return
+                }
             }
         }
         catch {
-            print("configCell failed: \(error)")
+            print("load image failed with error: \(error)")
             return
         }
         
-        guard let buttonImage = photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else { return }
-        cell.configCell(cellImage: imageView.image!, dataLabel: dateFormatter.string(from: Date()), buttonImage: buttonImage)
+        guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else { return }
+        cell.configCell(cellImage: imageView.image!, photoDate: self.photos[indexPath.row].createdAt, buttonImage: buttonImage)
     }
 }
 
@@ -195,7 +175,6 @@ extension ImagesListViewController {
     }
 }
 
-// нажатие на лайк
 extension ImagesListViewController: ImageListCellDelegate {
     func imageListCellTapLike(_ cell: ImageListCell) {
         UIBlockingProgressHUD.show()
@@ -203,14 +182,13 @@ extension ImagesListViewController: ImageListCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
         
-        
         self.imageListService?.changeLike(photo: photo) { result in
             DispatchQueue.main.async {
-            
                 UIBlockingProgressHUD.dismiss()
+                
                 switch result {
                 case .failure(let error):
-                    print("change like failed with error: \(error)")
+                    print("request to change like failed with error: \(error)")
                     return
                 case .success(_):
                     let newPhoto = Photo(
@@ -225,14 +203,11 @@ extension ImagesListViewController: ImageListCellDelegate {
                     
                     self.photos[indexPath.row] = newPhoto
                     
-                    
                     guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else {
                         assertionFailure("button image not found")
                         return
                     }
                     cell.setIsLike(buttonImage: buttonImage)
-                    
-                    print(self.photos[indexPath.row])
                 }
             }
         }
@@ -266,32 +241,5 @@ extension ImagesListViewController {
                 handler(result)
             }
         )
-    }
-}
-
-extension ImagesListViewController {
-    private func createAnimationGradient(frame: CGRect) -> CAGradientLayer {
-        let gradient = CAGradientLayer()
-        gradient.frame = frame
-        gradient.locations = [0, 0.1, 0.3]
-        gradient.colors = [
-            UIColor(red: 0.682, green: 0.686, blue: 0.706, alpha: 1).cgColor,
-            UIColor(red: 0.531, green: 0.533, blue: 0.553, alpha: 1).cgColor,
-            UIColor(red: 0.431, green: 0.433, blue: 0.453, alpha: 1).cgColor
-        ]
-        gradient.startPoint = CGPoint(x: 0, y: 0.5)
-        gradient.endPoint = CGPoint(x: 1, y: 0.5)
-        gradient.cornerRadius = 35
-        gradient.masksToBounds = true
-        
-        let gradientChangeAnimation = CABasicAnimation(keyPath: "locations")
-        gradientChangeAnimation.duration = 1.0
-        gradientChangeAnimation.repeatCount = .infinity
-        gradientChangeAnimation.fromValue = [0, 0.1, 0.3]
-        gradientChangeAnimation.toValue = [0, 0.8, 1]
-        
-        gradient.add(gradientChangeAnimation, forKey: "locationsChange")
-        
-        return gradient
     }
 }

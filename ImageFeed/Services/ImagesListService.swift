@@ -142,9 +142,9 @@ extension ImagesListService {
         
         switch photo.isLiked {
         case true:
-            httpMethod = HTTPMehtod.post
-        case false:
             httpMethod = HTTPMehtod.delete
+        case false:
+            httpMethod = HTTPMehtod.post
         }
         
         guard let request = URLRequest.makeHTTPRequest(

@@ -20,10 +20,14 @@ final class ImageListCell: UITableViewCell {
     @IBOutlet private var date: UILabel!
     
     @IBAction func likeButtonClicked(_ sender: Any) {
-        print("LIKE!!!")
         delegate?.imageListCellTapLike(self)
     }
-    
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter
+    }()
     static let reuseIdentifier = "ImageListCell"
     
     override func prepareForReuse() {
@@ -34,9 +38,12 @@ final class ImageListCell: UITableViewCell {
 }
 
 extension ImageListCell {
-    public func configCell(cellImage: UIImage, dataLabel: String, buttonImage: UIImage) {
+    public func configCell(cellImage: UIImage, photoDate: Date?, buttonImage: UIImage) {
         cellImageView.image = cellImage
-        date.text = dataLabel
+        date.text = ""
+        if let photoDate = photoDate {
+            date.text = dateFormatter.string(from: photoDate)
+        }
         likeButton.setImage(buttonImage, for: .normal)
     }
     

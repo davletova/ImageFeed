@@ -12,11 +12,6 @@ import WebKit
 class ProfileViewController: UIViewController {
     var profile: Profile?
     
-    private var animationLayers = Set<CALayer>()
-    private let gradientChangeAnimation = CABasicAnimation()
-    private let cornerRadiusForLabelGradient = 9
-    private let gradientChangeAnimationKey = "locationsChange"
-    
     private var profileImageServiceObserver: NSObjectProtocol?
     private let noneAvatarImage = UIImage(named: "person.crop.circle.fill") ?? UIImage(systemName: "person.crop.circle.fill")
     
@@ -51,11 +46,6 @@ class ProfileViewController: UIViewController {
         
         view.backgroundColor = UIColor(named: "YP Black")
         
-        gradientChangeAnimation.duration = 1.0
-        gradientChangeAnimation.repeatCount = .infinity
-        gradientChangeAnimation.fromValue = [0, 0.1, 0.3]
-        gradientChangeAnimation.toValue = [0, 0.8, 1]
-        
         addUserAvatar()
         
         addUserName()
@@ -86,20 +76,12 @@ extension ProfileViewController {
         imageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userAvatar = imageView
-        
-        let userAvatarFrame = CGRect(x: 0, y: 0, width: 70, height: 70)
-        
-        let userAvatarGradient = createGradient(frame: userAvatarFrame, cornerRadius: 35)
-        
-        animationLayers.insert(userAvatarGradient)
-        userAvatar.layer.addSublayer(userAvatarGradient)
-        userAvatarGradient.add(gradientChangeAnimation, forKey: gradientChangeAnimationKey)
     }
     
     private func addUserName() {
         let label = UILabel()
         
-        label.text =  ""
+        label.text = profile?.name ?? ""
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 23.0)
         
@@ -111,19 +93,12 @@ extension ProfileViewController {
         label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userName = label
-        
-        let userNameGradientFrame = CGRect(x: 0, y: 0, width: 200, height: 20)
-        let userNameGradient = createGradient(frame: userNameGradientFrame, cornerRadius: cornerRadiusForLabelGradient)
-        
-        animationLayers.insert(userNameGradient)
-        userName.layer.addSublayer(userNameGradient)
-        userNameGradient.add(gradientChangeAnimation, forKey: gradientChangeAnimationKey)
     }
     
     private func addUserLogin() {
         let label = UILabel()
         
-        label.text = ""
+        label.text = profile?.login ?? ""
         label.textColor = UIColor(named: "YP Gray") ?? .gray
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
@@ -135,18 +110,11 @@ extension ProfileViewController {
         label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userLogin = label
-        
-        let userLoginGradientFrame = CGRect(x: 0, y: 25, width: 70, height: 20)
-        let userLoginGradient = createGradient(frame: userLoginGradientFrame, cornerRadius: cornerRadiusForLabelGradient)
-        
-        animationLayers.insert(userLoginGradient)
-        userLogin.layer.addSublayer(userLoginGradient)
-        userLoginGradient.add(gradientChangeAnimation, forKey: gradientChangeAnimationKey)
     }
     
     private func addUserDescription() {
         let label = UILabel()
-        label.text = ""
+        label.text = profile?.description ?? ""
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
@@ -158,14 +126,6 @@ extension ProfileViewController {
         label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
             
         userDescription = label
-        
-        let userDescriptionGradientFrame = CGRect(x: 0, y: 50, width: 170, height: 20)
-        let userDescriptionGradient = createGradient(frame: userDescriptionGradientFrame, cornerRadius: cornerRadiusForLabelGradient)
-        
-        animationLayers.insert(userDescriptionGradient)
-        userDescription.layer.addSublayer(userDescriptionGradient)
-        userDescriptionGradient.add(gradientChangeAnimation, forKey: gradientChangeAnimationKey)
-       
     }
     
     private func addButtonLogout() {
@@ -203,16 +163,11 @@ extension ProfileViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):
-                    for g in self.animationLayers {
-                        g.removeFromSuperlayer()
-                    }
-
-                    self.userName.text = self.profile?.name ?? ""
-                    self.userLogin.text = self.profile?.login ?? ""
-                    self.userDescription.text = self.profile?.description ?? ""
+                    break
                 case .failure(let error):
                     self.userAvatar.image = self.noneAvatarImage
-                    print(error)
+                    print("request to load avatar failed with error: \(error)")
+                    return
                 }
             }
         }
@@ -221,28 +176,11 @@ extension ProfileViewController {
     private func goToSplash() {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         guard let splashViewController = storyboard.instantiateInitialViewController() else {
-            assertionFailure("Что-то пошло не так")
+            assertionFailure("ProfileViewController.goToSplash: storyboard.instantiateInitialViewController() not found")
             return
         }
         
         splashViewController.modalPresentationStyle = .fullScreen
         self.present(splashViewController, animated: true)
-    }
-    
-    private func createGradient(frame: CGRect, cornerRadius: Int) -> CAGradientLayer {
-        let gradient = CAGradientLayer()
-        gradient.frame = frame
-        gradient.locations = [0, 0.1, 0.3]
-        gradient.colors = [
-            UIColor(red: 0.682, green: 0.686, blue: 0.706, alpha: 1).cgColor,
-            UIColor(red: 0.531, green: 0.533, blue: 0.553, alpha: 1).cgColor,
-            UIColor(red: 0.431, green: 0.433, blue: 0.453, alpha: 1).cgColor
-        ]
-        gradient.startPoint = CGPoint(x: 0, y: 0.5)
-        gradient.endPoint = CGPoint(x: 1, y: 0.5)
-        gradient.cornerRadius = CGFloat(cornerRadius)
-        gradient.masksToBounds = true
-        
-        return gradient
     }
 }

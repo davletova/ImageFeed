@@ -80,7 +80,7 @@ class SplashViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController
         else {
-            assertionFailure("Что-то пошло не так")
+            assertionFailure("SplashViewContriler.goToAuth: AuthViewController not found")
             return
         }
         authViewController.delegate = self

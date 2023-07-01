@@ -19,7 +19,7 @@ extension URLRequest {
         
         if let path = path {
             guard let createURL = URL(string: path, relativeTo: baseUrl) else {
-                print("failed to create url from \(baseUrl.absoluteString) and \(path)")
+                assertionFailure("failed to create url from \(baseUrl.absoluteString) and \(path)")
                 return nil
             }
             url = createURL
@@ -42,7 +42,7 @@ extension URLRequest {
         request.httpMethod = method.rawValue
         if let body = body {
             guard let data = try? JSONEncoder().encode(body) else {
-                print("failed to encode request body")
+                assertionFailure("failed to encode request body")
                 return nil
             }
             request.httpBody = data
