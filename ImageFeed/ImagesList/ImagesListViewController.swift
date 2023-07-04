@@ -100,7 +100,7 @@ extension ImagesListViewController: UITableViewDataSource {
         guard let imagListCell = cell as? ImageListCell else {
             return UITableViewCell()
         }
-        
+
         imagListCell.delegate = self
         
         configCell(for: imagListCell, with: indexPath)
@@ -115,11 +115,22 @@ extension ImagesListViewController: UITableViewDataSource {
 
         let imageView = UIImageView()
         
+        var animationLayers = Set<CALayer>()
+        
+        let frame = CGRect(origin: .zero, size: CGSize(width: cell.frame.width, height: cell.frame.height))
+        let gradient = createImageViewWithGradient(frame: frame, cornerRadius: 9)
+        animationLayers.insert(gradient)
+        cell.imageView?.layer.addSublayer(gradient)
+        
         do {
             try loadImage(
                 to: imageView,
                 url: photos[indexPath.row].thumbImageURL
             ) { result in
+//                for g in animationLayers {
+//                    g.removeFromSuperlayer()
+//                }
+                
                 switch result {
                 case .success(_):
                     self.tableView.reloadRows(at: [indexPath], with: .automatic)
@@ -234,12 +245,37 @@ extension ImagesListViewController {
         
         imageView.kf.setImage(
             with: photoURL,
-            placeholder: UIImage(named: "Stub"),
             options: [.processor(processor)],
             completionHandler: {result in
                 UIBlockingProgressHUD.dismiss()
                 handler(result)
             }
         )
+    }
+}
+
+extension ImagesListViewController {
+    func createImageViewWithGradient(frame: CGRect, cornerRadius: CGFloat) -> CAGradientLayer {
+        let gradient = CAGradientLayer()
+        gradient.frame = frame
+        gradient.locations = [0, 0.1, 0.3]
+        gradient.colors = [
+            UIColor(red: 0.682, green: 0.686, blue: 0.706, alpha: 1).cgColor,
+            UIColor(red: 0.531, green: 0.533, blue: 0.553, alpha: 1).cgColor,
+            UIColor(red: 0.431, green: 0.433, blue: 0.453, alpha: 1).cgColor
+        ]
+        gradient.startPoint = CGPoint(x: 0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1, y: 0.5)
+        gradient.cornerRadius = cornerRadius
+        gradient.masksToBounds = true
+        
+        let gradientChangeAnimation = CABasicAnimation(keyPath: "locations")
+        gradientChangeAnimation.duration = 1.0
+        gradientChangeAnimation.repeatCount = .infinity
+        gradientChangeAnimation.fromValue = [0, 0.1, 0.3]
+        gradientChangeAnimation.toValue = [0, 0.8, 1]
+        gradient.add(gradientChangeAnimation, forKey: "locationsChange")
+        
+        return gradient
     }
 }

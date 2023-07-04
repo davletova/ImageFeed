@@ -12,6 +12,8 @@ import WebKit
 class ProfileViewController: UIViewController {
     var profile: Profile?
     
+    var animationLayers = Set<CALayer>()
+    
     private var profileImageServiceObserver: NSObjectProtocol?
     private let noneAvatarImage = UIImage(named: "person.crop.circle.fill") ?? UIImage(systemName: "person.crop.circle.fill")
     
@@ -76,12 +78,16 @@ extension ProfileViewController {
         imageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userAvatar = imageView
+        
+        let userAvatarFrame = CGRect(x: 0, y: 0, width: 70, height: 70)
+        let userAvatarGradient = createImageViewWithGradient(frame: userAvatarFrame, cornerRadius: 35)
+        animationLayers.insert(userAvatarGradient)
+        userAvatar.layer.addSublayer(userAvatarGradient)
     }
     
     private func addUserName() {
         let label = UILabel()
         
-        label.text = profile?.name ?? ""
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 23.0)
         
@@ -93,12 +99,16 @@ extension ProfileViewController {
         label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userName = label
+        
+        let userNameFrame = CGRect(x: 0, y: 0, width: 200, height: 20)
+        let userNameGradient = createImageViewWithGradient(frame: userNameFrame, cornerRadius: 9)
+        animationLayers.insert(userNameGradient)
+        userName.layer.addSublayer(userNameGradient)
     }
     
     private func addUserLogin() {
         let label = UILabel()
         
-        label.text = profile?.login ?? ""
         label.textColor = UIColor(named: "YP Gray") ?? .gray
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
@@ -110,11 +120,15 @@ extension ProfileViewController {
         label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
         
         userLogin = label
+        
+        let userLoginFrame = CGRect(x: 0, y: 25, width: 70, height: 20)
+        let userLoginGradient = createImageViewWithGradient(frame: userLoginFrame, cornerRadius: 9)
+        animationLayers.insert(userLoginGradient)
+        userName.layer.addSublayer(userLoginGradient)
     }
     
     private func addUserDescription() {
         let label = UILabel()
-        label.text = profile?.description ?? ""
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
         
@@ -126,6 +140,11 @@ extension ProfileViewController {
         label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16).isActive = true
             
         userDescription = label
+        
+        let userDescriptionFrame = CGRect(x: 0, y: 50, width: 170, height: 20)
+        let userDescriptionGradient = createImageViewWithGradient(frame: userDescriptionFrame, cornerRadius: 9)
+        animationLayers.insert(userDescriptionGradient)
+        userName.layer.addSublayer(userDescriptionGradient)
     }
     
     private func addButtonLogout() {
@@ -163,7 +182,13 @@ extension ProfileViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):
-                    break
+                    for g in self.animationLayers {
+                        g.removeFromSuperlayer()
+                    }
+
+                    self.userName.text = self.profile?.name ?? ""
+                    self.userLogin.text = self.profile?.login ?? ""
+                    self.userDescription.text = self.profile?.description ?? ""
                 case .failure(let error):
                     self.userAvatar.image = self.noneAvatarImage
                     print("request to load avatar failed with error: \(error)")
@@ -182,5 +207,31 @@ extension ProfileViewController {
         
         splashViewController.modalPresentationStyle = .fullScreen
         self.present(splashViewController, animated: true)
+    }
+}
+
+extension ProfileViewController {
+    func createImageViewWithGradient(frame: CGRect, cornerRadius: CGFloat) -> CAGradientLayer {
+        let gradient = CAGradientLayer()
+        gradient.frame = frame
+        gradient.locations = [0, 0.1, 0.3]
+        gradient.colors = [
+            UIColor(red: 0.682, green: 0.686, blue: 0.706, alpha: 1).cgColor,
+            UIColor(red: 0.531, green: 0.533, blue: 0.553, alpha: 1).cgColor,
+            UIColor(red: 0.431, green: 0.433, blue: 0.453, alpha: 1).cgColor
+        ]
+        gradient.startPoint = CGPoint(x: 0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1, y: 0.5)
+        gradient.cornerRadius = cornerRadius
+        gradient.masksToBounds = true
+        
+        let gradientChangeAnimation = CABasicAnimation(keyPath: "locations")
+        gradientChangeAnimation.duration = 1.0
+        gradientChangeAnimation.repeatCount = .infinity
+        gradientChangeAnimation.fromValue = [0, 0.1, 0.3]
+        gradientChangeAnimation.toValue = [0, 0.8, 1]
+        gradient.add(gradientChangeAnimation, forKey: "locationsChange")
+        
+        return gradient
     }
 }
