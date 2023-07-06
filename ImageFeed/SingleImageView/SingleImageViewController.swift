@@ -6,14 +6,15 @@
 //
 
 import UIKit
+import Kingfisher
+
+let loadSingleImageErrorAlertTitle = "Что-то пошло не так."
+let loadSingleImageErrorAlertMessage = "Попробовать ещё раз?"
+let loadSingleImageErrorAlertActionRetry = "Повторить"
+let loadSingleImageErrorAlertActionExit = "Не надо"
 
 final class SingleImageViewController: UIViewController {
-    var image: UIImage! {
-        didSet(newValue) {
-            guard let image = newValue else { return }
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var imageURL: URL?
     
     @IBOutlet private var sharingButton: UIButton!
     @IBOutlet private var scrollView: UIScrollView!
@@ -25,7 +26,7 @@ final class SingleImageViewController: UIViewController {
     }
     
     @IBAction func didTapShareButton() {
-        let item = [image]
+        let item = [imageView.image]
         let activityController = UIActivityViewController(activityItems: item as [Any], applicationActivities: nil)
         
         self.present(activityController, animated: true)
@@ -34,12 +35,10 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
-       	
-        super.viewDidLoad()
-        imageView.image = image
         
-        guard let image = imageView.image else { return }
-        rescaleAndCenterImageInScrollView(image: image)
+        super.viewDidLoad()
+        
+        loadImage()
     }
 }
 
@@ -49,11 +48,42 @@ extension SingleImageViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        rescaleAndCenterImageInScrollView(image: image)
+        rescaleAndCenterImageInScrollView(image: imageView.image!)
     }
 }
 
 extension SingleImageViewController {
+    private func loadImage() {
+        guard let url = imageURL else {
+            assertionFailure("SingleImageViewController: imageURL is empty")
+            return
+        }
+        
+        let processor = RoundCornerImageProcessor(cornerRadius: 16)
+        
+        UIBlockingProgressHUD.show()
+        
+        imageView.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "Stub"),
+            options: [.processor(processor)]
+        ) { result in
+            UIBlockingProgressHUD.dismiss()
+            
+            switch result {
+            case .success(_):
+                self.rescaleAndCenterImageInScrollView(image: self.imageView.image!)
+            case .failure(let error):
+                print(error)
+                self.showAlert()
+                return
+            }
+        }
+        
+        guard let image = imageView.image else { return }
+        self.rescaleAndCenterImageInScrollView(image: image)
+    }
+    
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
@@ -77,5 +107,18 @@ extension SingleImageViewController {
         let y = (newContentSize.height - visibleRectSize.height) / 2
         
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
+    }
+    
+    private func showAlert() {
+        let alert = UIAlertController(title: loadSingleImageErrorAlertTitle, message: loadSingleImageErrorAlertMessage, preferredStyle: .alert)
+        let actionRetry = UIAlertAction(title: loadSingleImageErrorAlertActionRetry, style: .default) {_ in
+            self.loadImage()
+        }
+        let actionExit = UIAlertAction(title: loadSingleImageErrorAlertActionExit, style: .default) { _ in }
+        
+        alert.addAction(actionRetry)
+        alert.addAction(actionExit)
+        
+        self.present(alert, animated: true)
     }
 }

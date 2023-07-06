@@ -26,7 +26,6 @@ class SplashViewController: UIViewController {
         
         if OAuth2TokenStorage.shared.accessToken != nil {
             UIBlockingProgressHUD.show()
-            
             getUser()
         } else {
             goToAuth()
@@ -44,7 +43,6 @@ class SplashViewController: UIViewController {
                     } else {
                         UIBlockingProgressHUD.dismiss()
                         self.showAlert()
-                        
                         print("get user failed with error: \(error)")
                         break
                     }
@@ -82,7 +80,7 @@ class SplashViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController
         else {
-            assertionFailure("Что-то пошло не так")
+            assertionFailure("SplashViewContriler.goToAuth: AuthViewController not found")
             return
         }
         authViewController.delegate = self

@@ -28,10 +28,17 @@ class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
                 return
             }
             let isSuccess = KeychainWrapper.standard.set(newValue, forKey: accessTokenKeychainKey)
+            
             guard isSuccess else {
                 assertionFailure("failed to write access token in Keychain")
                 return
             }
         }
+    }
+}
+
+extension OAuth2TokenStorage {
+    static func removeAccessToken() {
+        KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: accessTokenKeychainKey))
     }
 }

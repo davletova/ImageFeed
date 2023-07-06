@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import WebKit
 
 class ProfileViewController: UIViewController {
     var profile: Profile?
@@ -14,14 +15,19 @@ class ProfileViewController: UIViewController {
     private var profileImageServiceObserver: NSObjectProtocol?
     private let noneAvatarImage = UIImage(named: "person.crop.circle.fill") ?? UIImage(systemName: "person.crop.circle.fill")
     
-    @IBOutlet var userName: UILabel!
-    @IBOutlet var userLogin: UILabel!
-    @IBOutlet var userDescription: UILabel!
+    @IBOutlet private var userName: UILabel!
+    @IBOutlet private var userLogin: UILabel!
+    @IBOutlet private var userDescription: UILabel!
     
-    @IBOutlet var userAvatar: UIImageView!
-    @IBOutlet var logout: UIButton!
+    @IBOutlet private var userAvatar: UIImageView!
+    @IBOutlet private var logout: UIButton!
     
-    @objc private func didLogout() { }
+    @objc private func didLogout() {
+        OAuth2TokenStorage.removeAccessToken()
+        CookieCleaner.clean()
+        
+        goToSplash()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,6 +97,7 @@ extension ProfileViewController {
     
     private func addUserLogin() {
         let label = UILabel()
+        
         label.text = profile?.login ?? ""
         label.textColor = UIColor(named: "YP Gray") ?? .gray
         label.font = UIFont.boldSystemFont(ofSize: 13.0)
@@ -152,15 +159,28 @@ extension ProfileViewController {
         userAvatar.kf.setImage(with: url,
                                placeholder: noneAvatarImage,
                                options: [.processor(processor)]
-                               
         ) { result in
-            switch result {
-            case .success(_):
-                break
-            case .failure(let error):
-                self.userAvatar.image = self.noneAvatarImage
-                print(error)
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_):
+                    break
+                case .failure(let error):
+                    self.userAvatar.image = self.noneAvatarImage
+                    print("request to load avatar failed with error: \(error)")
+                    return
+                }
             }
         }
+    }
+    
+    private func goToSplash() {
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        guard let splashViewController = storyboard.instantiateInitialViewController() else {
+            assertionFailure("ProfileViewController.goToSplash: storyboard.instantiateInitialViewController() not found")
+            return
+        }
+        
+        splashViewController.modalPresentationStyle = .fullScreen
+        self.present(splashViewController, animated: true)
     }
 }

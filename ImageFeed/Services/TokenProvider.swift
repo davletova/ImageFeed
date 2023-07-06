@@ -49,6 +49,7 @@ final class BearerTokenProvider: TokenProviderProtocol {
             baseUrl: authURL,
             path: nil,
             method: HTTPMehtod.post,
+            queryItems: nil,
             body: nil
         ) else {
             assertionFailure("failed to make getToken request")
@@ -71,7 +72,7 @@ final class BearerTokenProvider: TokenProviderProtocol {
     
     func authTokenRequestURL(code: String) -> URL? {
         guard var urlComponents = URLComponents(string: GetTokenURL) else {
-            print("failed to create url components for url \(GetTokenURL)")
+            assertionFailure("failed to create url components for url \(GetTokenURL)")
             return nil
         }
         
@@ -84,7 +85,7 @@ final class BearerTokenProvider: TokenProviderProtocol {
         ]
         
         guard let url = urlComponents.url else {
-            print("failed to get url from urlComponents")
+            assertionFailure("failed to get url from urlComponents")
             return nil
         }
 
