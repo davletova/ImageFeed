@@ -15,12 +15,12 @@ class ProfileViewController: UIViewController {
     private var profileImageServiceObserver: NSObjectProtocol?
     private let noneAvatarImage = UIImage(named: "person.crop.circle.fill") ?? UIImage(systemName: "person.crop.circle.fill")
     
-    @IBOutlet var userName: UILabel!
-    @IBOutlet var userLogin: UILabel!
-    @IBOutlet var userDescription: UILabel!
+    @IBOutlet private var userName: UILabel!
+    @IBOutlet private var userLogin: UILabel!
+    @IBOutlet private var userDescription: UILabel!
     
-    @IBOutlet var userAvatar: UIImageView!
-    @IBOutlet var logout: UIButton!
+    @IBOutlet private var userAvatar: UIImageView!
+    @IBOutlet private var logout: UIButton!
     
     @objc private func didLogout() {
         OAuth2TokenStorage.removeAccessToken()

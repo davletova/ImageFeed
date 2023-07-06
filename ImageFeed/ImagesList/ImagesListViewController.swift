@@ -31,7 +31,12 @@ class ImagesListViewController: UIViewController {
         }
         imageListService = ImagesListService(apiRequester: APIRequester(accessToken: accessToken))
         
-        imageListService?.getPhotosNextPage() { response in
+        guard let imageListService = imageListService else {
+            assertionFailure("imageListViewController: imageListService is empty")
+            return
+        }
+        
+        imageListService.getPhotosNextPage() { response in
             DispatchQueue.main.async() {
                 switch response {
                 case .failure(let error):
@@ -80,7 +85,12 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == photos.count - 1 {
-            imageListService?.getPhotosNextPage() { response in
+            guard let imageListService = imageListService else {
+                assertionFailure("imageListViewController: imageListService is empty")
+                return
+            }
+            
+            imageListService.getPhotosNextPage() { response in
                 DispatchQueue.main.async {
                     switch response {
                     case .failure(let error):
