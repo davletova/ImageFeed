@@ -37,8 +37,8 @@ class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
     }
 }
 
-extension OAuth2TokenStorage {
-    static func removeAccessToken() {
+extension OAuth2TokenStorage: AccessTokenCleanerProtocol {
+    func removeAccessToken() {
         KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: accessTokenKeychainKey))
     }
 }

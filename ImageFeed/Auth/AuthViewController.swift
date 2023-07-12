@@ -26,6 +26,10 @@ class AuthViewController: UIViewController {
                 assertionFailure("failed to customize seque.destination to WebViewViewController")
                 return
             }
+            let authHelper = AuthHelper()
+            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+            webViewPresenter.view = webView
+            webView.presenter = webViewPresenter
             webView.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)

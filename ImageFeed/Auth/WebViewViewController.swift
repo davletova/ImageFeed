@@ -8,10 +8,19 @@
 import UIKit
 import WebKit
 
-final class WebViewViewController: UIViewController {
-    private let UnsplashAuthorizeURL = "https://unsplash.com/oauth/authorize"
+protocol WebViewViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol? { get set }
+    
+    func load(_ request: URLRequest)
+    func setProgressValue(_ newValue: Float)
+    func setProgressHidden(_ isHidden: Bool)
+}
+
+final class WebViewViewController: UIViewController & WebViewViewControllerProtocol {
     private let getCodeURLPath = "/oauth/authorize/native"
     private let responseType = "code"
+    
+    var presenter: WebViewPresenterProtocol?
     
     private var estimatedProgressObservation: NSKeyValueObservation?
     
@@ -31,43 +40,37 @@ final class WebViewViewController: UIViewController {
             \.estimatedProgress,
              options: [],
              changeHandler: { [weak self] _, _ in
-                 guard let self = self else { return }
-                 self.updateProgress()
+                 guard let self = self else {
+                     assertionFailure("webView.observe.changeHandler: self is empty")
+                     return
+                 }
+                 guard let presenter = self.presenter else {
+                     assertionFailure("webView.observe.changeHandler: presenter is empty")
+                     return
+                 }
+                 presenter.didUpdateProgressValue(self.webView.estimatedProgress)
              })
         
         webView.navigationDelegate = self
 
-        guard let baseURL = URL(string: UnsplashAuthorizeURL) else {
-            assertionFailure("failed to create URL from string \(UnsplashAuthorizeURL)")
+        guard let presenter = self.presenter else {
+            assertionFailure("webView.observe.changeHandler: presenter is empty")
             return
         }
         
-        let queryItems = [
-            URLQueryItem(name: "client_id", value: AccessKey),
-            URLQueryItem(name: "redirect_uri", value: RedirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: AccessScope)
-        ]
-
-        
-        guard let request = URLRequest.makeHTTPRequest(
-            baseUrl: baseURL,
-            path: nil,
-            method: HTTPMehtod.get,
-            queryItems: queryItems,
-            body: nil) else {
-            assertionFailure("failed to create UnsplashAuthorizeURL with query items")
-            return
-        }
-        
-        webView.load(request)
-
-        updateProgress()
+        presenter.viewDidLoad()
     }
     
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1) <= 0.0001
+    func load(_ request: URLRequest) {
+        webView.load(request)
+    }
+    
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
     }
 }
 
@@ -91,15 +94,10 @@ extension WebViewViewController: WKNavigationDelegate {
     }
     
     private func code(from navigationAction: WKNavigationAction) -> String? {
-        if let url = navigationAction.request.url,
-           let urlComponents = URLComponents(string: url.absoluteString),
-           urlComponents.path == getCodeURLPath,
-           let items = urlComponents.queryItems,
-           let codeItems = items.first(where: { $0.name == responseType })
-        {
-            return codeItems.value
-        } else {
-            return nil
+        if let url = navigationAction.request.url {
+            return presenter?.code(from: url)
         }
+        return nil
     }
 }
+

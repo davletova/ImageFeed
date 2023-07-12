@@ -49,7 +49,7 @@ final class ProfileImageService {
             method: HTTPMehtod.get,
             queryItems: nil,
             body: nil) else {
-                assertionFailure("faield to create getPublicUser request")
+                assertionFailure("failed to create getPublicUser request")
                 return
             }
         
@@ -74,5 +74,10 @@ final class ProfileImageService {
         print("profile image's URL not found")
         return nil
     }
-    
+}
+
+extension ProfileImageService: AvatarURLProviderProtocol {
+    func getAvatarURL() -> String {
+        avatarURL
+    }
 }

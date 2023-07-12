@@ -9,38 +9,37 @@ import UIKit
 import Kingfisher
 import WebKit
 
+let noneAvatarImage = UIImage(named: "person.crop.circle.fill") ?? UIImage(systemName: "person.crop.circle.fill")
+
+protocol ProfileViewControllerProtocol {
+    var userAvatar: UIImageView! { get set }
+    
+    func present(controller: UIViewController)
+    func setImage(url: URL)
+}
+
 class ProfileViewController: UIViewController {
     var profile: Profile?
     
-    private var profileImageServiceObserver: NSObjectProtocol?
-    private let noneAvatarImage = UIImage(named: "person.crop.circle.fill") ?? UIImage(systemName: "person.crop.circle.fill")
+    var profileViewPresenter: ProfileViewPresenterProtocol?
     
     @IBOutlet private var userName: UILabel!
     @IBOutlet private var userLogin: UILabel!
     @IBOutlet private var userDescription: UILabel!
     
-    @IBOutlet private var userAvatar: UIImageView!
+    @IBOutlet var userAvatar: UIImageView!
     @IBOutlet private var logout: UIButton!
     
     @objc private func didLogout() {
-        OAuth2TokenStorage.removeAccessToken()
-        CookieCleaner.clean()
-        
-        goToSplash()
+        guard let presenter = self.profileViewPresenter else {
+            assertionFailure("ProfileViewController: profileViewPresenter is empty")
+            return
+        }
+        presenter.logout()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ProfileImageService.DidChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                guard let self = self else { return }
-                self.updateAvatar()
-            }
         
         profile = ProfileService.shared.profile
         
@@ -56,7 +55,11 @@ class ProfileViewController: UIViewController {
         
         addButtonLogout()
         
-        updateAvatar()
+        guard let presenter = self.profileViewPresenter else {
+            assertionFailure("ProfileViewController: profileViewPresenter is empty")
+            return
+        }
+        presenter.updateAvatar()
     }
 }
 
@@ -148,12 +151,8 @@ extension ProfileViewController {
     }
 }
 
-extension ProfileViewController {
-    private func updateAvatar() {
-        let profileImageURL = ProfileImageService.shared.avatarURL
-        
-        guard let url = URL(string: profileImageURL) else { return }
-        
+extension ProfileViewController: ProfileViewControllerProtocol {
+    func setImage(url: URL) {
         let processor = RoundCornerImageProcessor(cornerRadius: userAvatar.frame.size.width / 2)
         
         userAvatar.kf.setImage(with: url,
@@ -165,7 +164,7 @@ extension ProfileViewController {
                 case .success(_):
                     break
                 case .failure(let error):
-                    self.userAvatar.image = self.noneAvatarImage
+                    self.userAvatar.image = noneAvatarImage
                     print("request to load avatar failed with error: \(error)")
                     return
                 }
@@ -173,14 +172,7 @@ extension ProfileViewController {
         }
     }
     
-    private func goToSplash() {
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        guard let splashViewController = storyboard.instantiateInitialViewController() else {
-            assertionFailure("ProfileViewController.goToSplash: storyboard.instantiateInitialViewController() not found")
-            return
-        }
-        
-        splashViewController.modalPresentationStyle = .fullScreen
-        self.present(splashViewController, animated: true)
+    func present(controller: UIViewController) {
+        present(controller, animated: true)
     }
 }

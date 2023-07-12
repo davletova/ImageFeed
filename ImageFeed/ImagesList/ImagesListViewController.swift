@@ -8,6 +8,10 @@
 import UIKit
 import Kingfisher
 
+protocol ImageListPresenterProtocol {
+    func changeLike(photo: Photo, handler: @escaping(Photo) -> Void)
+}
+
 class ImagesListViewController: UIViewController {
     @IBOutlet weak private var tableView: UITableView!
     
@@ -18,7 +22,8 @@ class ImagesListViewController: UIViewController {
     
     private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     
-    private var imageListService: ImagesListService?
+//    private var imageListService: ImagesListService?
+    var imageListPresenter: ImageListPresenterProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -192,35 +197,45 @@ extension ImagesListViewController: ImageListCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
         
-        self.imageListService?.changeLike(photo: photo) { result in
-            DispatchQueue.main.async {
-                UIBlockingProgressHUD.dismiss()
-                
-                switch result {
-                case .failure(let error):
-                    print("request to change like failed with error: \(error)")
-                    return
-                case .success(_):
-                    let newPhoto = Photo(
-                        id: photo.id,
-                        size: photo.size,
-                        createdAt: photo.createdAt,
-                        welcomeDescription: photo.welcomeDescription,
-                        thumbImageURL: photo.thumbImageURL,
-                        largeImageURL: photo.largeImageURL,
-                        isLiked: !photo.isLiked
-                    )
-                    
-                    self.photos[indexPath.row] = newPhoto
-                    
-                    guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else {
-                        assertionFailure("button image not found")
-                        return
-                    }
-                    cell.setIsLike(buttonImage: buttonImage)
-                }
+        imageListPresenter?.changeLike(photo: photo) { newPhoto in
+            self.photos[indexPath.row] = newPhoto
+            
+            guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else {
+                assertionFailure("button image not found")
+                return
             }
+            cell.setIsLike(buttonImage: buttonImage)
         }
+        
+//        self.imageListService?.changeLike(photo: photo) { result in
+//            DispatchQueue.main.async {
+//                UIBlockingProgressHUD.dismiss()
+//
+//                switch result {
+//                case .failure(let error):
+//                    print("request to change like failed with error: \(error)")
+//                    return
+//                case .success(_):
+//                    let newPhoto = Photo(
+//                        id: photo.id,
+//                        size: photo.size,
+//                        createdAt: photo.createdAt,
+//                        welcomeDescription: photo.welcomeDescription,
+//                        thumbImageURL: photo.thumbImageURL,
+//                        largeImageURL: photo.largeImageURL,
+//                        isLiked: !photo.isLiked
+//                    )
+//
+//                    self.photos[indexPath.row] = newPhoto
+//
+//                    guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else {
+//                        assertionFailure("button image not found")
+//                        return
+//                    }
+//                    cell.setIsLike(buttonImage: buttonImage)
+//                }
+//            }
+//        }
     }
 }
 
