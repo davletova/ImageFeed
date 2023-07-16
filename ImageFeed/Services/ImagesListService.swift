@@ -32,7 +32,15 @@ struct UnsplashPhoto: Codable {
     }
 }
 
-final class ImagesListService {
+struct ChangeLikeResponse: Decodable {
+    let photo: UnsplashPhoto
+    
+    private enum CodingKeys: String, CodingKey {
+        case photo = "photo"
+    }
+}
+
+final class ImagesListService: ImagesListServiceProtocol {
     private let apiRequester: APIRequester
     
     private var lastLoadedPage: Int?
@@ -124,14 +132,6 @@ extension ImagesListService {
 }
 
 extension ImagesListService {
-    struct ChangeLikeResponse: Decodable {
-        let photo: UnsplashPhoto
-        
-        private enum CodingKeys: String, CodingKey {
-            case photo = "photo"
-        }
-    }
-    
     func changeLike(photo: Photo, _ completion: @escaping(Result<ChangeLikeResponse, Error>) -> Void) {
         guard let baseURL = URL(string: DefaultBaseURL) else {
             assertionFailure("failed to create URL from \(DefaultBaseURL)")

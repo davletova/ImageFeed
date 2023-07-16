@@ -77,7 +77,9 @@ class ProfileViewPresenter: ProfileViewPresenterProtocol {
     
     func updateAvatar() {
         let profileImageURL = avatarURLProvider.getAvatarURL()
-        guard let url = URL(string: profileImageURL) else { return }
+        guard let url = URL(string: profileImageURL) else {
+            assertionFailure("updateAvatar: create profileImageURL failed ")
+            return }
        
         guard let viewController = viewController else {
             assertionFailure("ProfileViewPresenter: viewController is empty")

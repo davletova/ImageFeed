@@ -9,50 +9,37 @@ import UIKit
 import Kingfisher
 
 protocol ImageListPresenterProtocol {
+    func getPhotosNextPage()
+    func checkIfNeedGetPhotosNextPage(indexPath: IndexPath)
     func changeLike(photo: Photo, handler: @escaping(Photo) -> Void)
+    func updateTableViewAnimated()
+    func calculateCellHeight(indexPath: IndexPath, tableViewBoundsWidth: CGFloat) -> CGFloat
 }
 
-class ImagesListViewController: UIViewController {
+class ImagesListViewController: UIViewController , ImagesListViewControllerProtocol{
     @IBOutlet weak private var tableView: UITableView!
     
-    private var photos: [Photo] = []
-    private var oldPhotosCount = 0
+    var photos: [Photo] = []
     
     static let DidChangeNotification = Notification.Name(rawValue: "ImageForSingleImageViewLoad")
     
     private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     
-//    private var imageListService: ImagesListService?
-    var imageListPresenter: ImageListPresenterProtocol?
+    var presenter: ImageListPresenterProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        
+        tableView.accessibilityIdentifier = "ImageFeedTable"
+        
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        
-        guard let accessToken = OAuth2TokenStorage.shared.accessToken else {
-            print("ImagesListViewController: access token not found")
-            return
-        }
-        imageListService = ImagesListService(apiRequester: APIRequester(accessToken: accessToken))
-        
-        guard let imageListService = imageListService else {
+
+        guard let presenter = presenter else {
             assertionFailure("imageListViewController: imageListService is empty")
             return
         }
         
-        imageListService.getPhotosNextPage() { response in
-            DispatchQueue.main.async() {
-                switch response {
-                case .failure(let error):
-                    print("failed to getPhotosNextPage with error: \(error)")
-                    break
-                case .success(let photos):
-                    self.photos.append(contentsOf: photos)
-                    self.updateTableViewAnimated()
-                }
-            }
-        }
+        presenter.getPhotosNextPage()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -89,25 +76,11 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == photos.count - 1 {
-            guard let imageListService = imageListService else {
-                assertionFailure("imageListViewController: imageListService is empty")
-                return
-            }
-            
-            imageListService.getPhotosNextPage() { response in
-                DispatchQueue.main.async {
-                    switch response {
-                    case .failure(let error):
-                        print("failed to getPhotosNextPage with error: \(error)")
-                        break
-                    case .success(let photos):
-                        self.photos.append(contentsOf: photos)
-                        self.updateTableViewAnimated()
-                    }
-                }
-            }
+        guard let imageListPresenter = presenter else {
+            assertionFailure("presenter is nil")
+            return
         }
+        imageListPresenter.checkIfNeedGetPhotosNextPage(indexPath: indexPath)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -149,44 +122,21 @@ extension ImagesListViewController: UITableViewDataSource {
             return
         }
         
-        guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else { return }
-        cell.configCell(cellImage: imageView.image!, photoDate: self.photos[indexPath.row].createdAt, buttonImage: buttonImage)
+        cell.configCell(cellImage: imageView.image!, photoDate: self.photos[indexPath.row].createdAt, isImageLike: self.photos[indexPath.row].isLiked)
     }
 }
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if photos.count <= indexPath.row {
+        guard let presenter = presenter else {
+            assertionFailure("")
             return 0
         }
-        
-        let photo = photos[indexPath.row]
-        
-        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-        let imageWidth = photo.size.width
-        let scale = imageViewWidth / imageWidth
-        let cellHeight = photo.size.height * scale + imageInsets.top + imageInsets.bottom
-        return cellHeight
+        return presenter.calculateCellHeight(indexPath: indexPath, tableViewBoundsWidth: tableView.bounds.width)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: ShowSingleImageSegueIdentifier, sender: indexPath)
-    }
-}
-
-extension ImagesListViewController {
-    private func updateTableViewAnimated() {
-        if oldPhotosCount != photos.count {
-            let indexPaths = (oldPhotosCount..<photos.count).map{ i in
-                IndexPath(row: i, section: 0)
-            }
-            self.tableView.performBatchUpdates {
-                self.tableView.insertRows(at: indexPaths, with: .automatic)
-            } completion: { _ in }
-            
-            oldPhotosCount = photos.count
-        }
     }
 }
 
@@ -197,45 +147,23 @@ extension ImagesListViewController: ImageListCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
         
-        imageListPresenter?.changeLike(photo: photo) { newPhoto in
+        presenter?.changeLike(photo: photo) { newPhoto in
             self.photos[indexPath.row] = newPhoto
             
-            guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else {
-                assertionFailure("button image not found")
-                return
-            }
-            cell.setIsLike(buttonImage: buttonImage)
+            cell.setIsLike(isImageLike: self.photos[indexPath.row].isLiked)
         }
-        
-//        self.imageListService?.changeLike(photo: photo) { result in
-//            DispatchQueue.main.async {
-//                UIBlockingProgressHUD.dismiss()
-//
-//                switch result {
-//                case .failure(let error):
-//                    print("request to change like failed with error: \(error)")
-//                    return
-//                case .success(_):
-//                    let newPhoto = Photo(
-//                        id: photo.id,
-//                        size: photo.size,
-//                        createdAt: photo.createdAt,
-//                        welcomeDescription: photo.welcomeDescription,
-//                        thumbImageURL: photo.thumbImageURL,
-//                        largeImageURL: photo.largeImageURL,
-//                        isLiked: !photo.isLiked
-//                    )
-//
-//                    self.photos[indexPath.row] = newPhoto
-//
-//                    guard let buttonImage = self.photos[indexPath.row].isLiked ? UIImage(named: "Active") : UIImage(named: "No Active") else {
-//                        assertionFailure("button image not found")
-//                        return
-//                    }
-//                    cell.setIsLike(buttonImage: buttonImage)
-//                }
-//            }
-//        }
+    }
+}
+
+extension ImagesListViewController {
+    func performBatchUpdates(indexPaths: [IndexPath]) {
+        self.tableView.performBatchUpdates {
+            self.tableView.insertRows(at: indexPaths, with: .automatic)
+        } completion: { _ in }
+    }
+    
+    func appendPhotos(photos: [Photo]) {
+        self.photos.append(contentsOf: photos)
     }
 }
 
@@ -268,3 +196,4 @@ extension ImagesListViewController {
         )
     }
 }
+

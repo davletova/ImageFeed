@@ -17,8 +17,15 @@ class AuthViewController: UIViewController {
     
     var tokenProvider: TokenProviderProtocol = BearerTokenProvider()
     var oauth2TokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
-    
     var delegate: AuthViewControllerDelegate?
+    
+    @IBOutlet var login: UIButton!
+   
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        login.accessibilityIdentifier = "Authenticate"
+    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == AuthViewController.ReuseIdentifier {

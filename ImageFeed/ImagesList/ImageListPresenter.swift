@@ -6,26 +6,54 @@
 //
 
 import Foundation
+import UIKit
 
-protocol ImageListServiceProtocol {
+protocol ImagesListServiceProtocol {
     func changeLike(photo: Photo, _ completion: @escaping(Result<ChangeLikeResponse, Error>) -> Void)
+    func getPhotosNextPage(handler: @escaping(Result<[Photo], Error>) -> Void)
 }
 
-protocol ImageListViewControllerProtocol {
+protocol ImagesListViewControllerProtocol {
     var photos: [Photo] { get set }
-    func performBatchUpdates()
+    func performBatchUpdates(indexPaths: [IndexPath])
+    func appendPhotos(photos: [Photo])
 }
 
-final class ImageListPresenter {
-    var imageListService: ImageListServiceProtocol
-    var view: ImageListViewControllerProtocol?
+final class ImageListPresenter: ImageListPresenterProtocol {
+    var service: ImagesListServiceProtocol
+    var view: ImagesListViewControllerProtocol
     
-    init(imageListService: ImageListServiceProtocol) {
-        self.imageListService = imageListService
+    internal var oldPhotosCount = 0
+    
+    init(service: ImagesListServiceProtocol, view: ImagesListViewControllerProtocol) {
+        self.service = service
+        self.view = view
     }
     
-    func changeLike(photo: Photo, _ handler: @escaping(Photo) -> Void) {
-        imageListService.changeLike(photo: photo) { result in
+    func getPhotosNextPage() {
+        service.getPhotosNextPage() { response in
+            DispatchQueue.main.async {
+                switch response {
+                case .failure(let error):
+                    print("failed to getPhotosNextPage with error: \(error)")
+                    break
+                case .success(let photos):
+                    self.view.appendPhotos(photos: photos)
+                    
+                    self.updateTableViewAnimated()
+                }
+            }
+        }
+    }
+    
+    func checkIfNeedGetPhotosNextPage(indexPath: IndexPath) {
+        if indexPath.row == view.photos.count - 1 {
+            getPhotosNextPage()
+        }
+    }
+    
+    func changeLike(photo: Photo, handler: @escaping(Photo) -> Void) {
+        service.changeLike(photo: photo) { result in
             DispatchQueue.main.async {
                 UIBlockingProgressHUD.dismiss()
                 
@@ -51,15 +79,29 @@ final class ImageListPresenter {
     }
     
     func updateTableViewAnimated() {
-        if oldPhotosCount != photos.count {
-            let indexPaths = (oldPhotosCount..<photos.count).map{ i in
+        if oldPhotosCount != view.photos.count {
+            let indexPaths = (oldPhotosCount..<view.photos.count).map{ i in
                 IndexPath(row: i, section: 0)
             }
-            self.tableView.performBatchUpdates {
-                self.tableView.insertRows(at: indexPaths, with: .automatic)
-            } completion: { _ in }
             
-            oldPhotosCount = photos.count
+            view.performBatchUpdates(indexPaths: indexPaths)
+            
+            oldPhotosCount = view.photos.count
         }
+    }
+    
+    func calculateCellHeight(indexPath: IndexPath, tableViewBoundsWidth: CGFloat) -> CGFloat {
+        if view.photos.count <= indexPath.row {
+            return 0
+        }
+        
+        let photo = view.photos[indexPath.row]
+        
+        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        let imageViewWidth = tableViewBoundsWidth - imageInsets.left - imageInsets.right
+        let imageWidth = photo.size.width
+        let scale = imageViewWidth / imageWidth
+        let cellHeight = photo.size.height * scale + imageInsets.top + imageInsets.bottom
+        return cellHeight
     }
 }
