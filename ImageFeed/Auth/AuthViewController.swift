@@ -12,14 +12,14 @@ protocol AuthViewControllerDelegate {
     func switchToTabBarController()
 }
 
-class AuthViewController: UIViewController {
+final class AuthViewController: UIViewController {
     static let ReuseIdentifier: String = "ShowWebView"
     
     var tokenProvider: TokenProviderProtocol = BearerTokenProvider()
     var oauth2TokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
     var delegate: AuthViewControllerDelegate?
     
-    @IBOutlet var login: UIButton!
+    @IBOutlet private weak var login: UIButton!
    
     override func viewDidLoad() {
         super.viewDidLoad()

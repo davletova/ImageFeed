@@ -120,29 +120,4 @@ final class AvatarURLProviderSpy: AvatarURLProviderProtocol {
         return "https://images.unsplash.com/face-springmorning.jpg?q=80&fm=jpg&crop=faces&fit=crop&h=32&w=32"
     }
 }
-
-//final class WebViewPresenterSpy: WebViewPresenterProtocol {
-//    var viewDidLoadCalled: Bool = false
-//    var view: WebViewViewControllerProtocol?
-//
-//    func viewDidLoad() {
-//        viewDidLoadCalled = true
-//    }
-//
-//    func didUpdateProgressValue(_ newValue: Double) { }
-//
-//    func code(from url: URL) -> String? { return nil }
-//}
-//
-//final class WebViewControllerSpy: WebViewViewControllerProtocol {
-//    var viewLoadRequestCalled: Bool = false
-//    var presenter: WebViewPresenterProtocol?
-//
-//    func load(_ request: URLRequest) {
-//        viewLoadRequestCalled = true
-//    }
-//
-//    func setProgressValue(_ newValue: Float) { }
-//
-//    func setProgressHidden(_ isHidden: Bool) { }
-//}
+            

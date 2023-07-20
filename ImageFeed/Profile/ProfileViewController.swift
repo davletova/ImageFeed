@@ -18,17 +18,17 @@ protocol ProfileViewControllerProtocol {
     func setImage(url: URL)
 }
 
-class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController {
     var profile: Profile?
     
     var profileViewPresenter: ProfileViewPresenterProtocol?
     
-    @IBOutlet private var userName: UILabel!
-    @IBOutlet private var userLogin: UILabel!
-    @IBOutlet private var userDescription: UILabel!
+    @IBOutlet weak private var userName: UILabel!
+    @IBOutlet weak private var userLogin: UILabel!
+    @IBOutlet weak private var userDescription: UILabel!
     
-    @IBOutlet var userAvatar: UIImageView!
-    @IBOutlet private var logout: UIButton!
+    @IBOutlet weak var userAvatar: UIImageView!
+    @IBOutlet weak private var logout: UIButton!
     
     @objc private func didLogout() {
         guard let presenter = self.profileViewPresenter else {

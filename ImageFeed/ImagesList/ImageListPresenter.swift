@@ -14,14 +14,14 @@ protocol ImagesListServiceProtocol {
 }
 
 protocol ImagesListViewControllerProtocol {
-    var photos: [Photo] { get set }
     func performBatchUpdates(indexPaths: [IndexPath])
-    func appendPhotos(photos: [Photo])
 }
 
 final class ImageListPresenter: ImageListPresenterProtocol {
     var service: ImagesListServiceProtocol
     var view: ImagesListViewControllerProtocol
+    
+    var photos: [Photo] = []
     
     internal var oldPhotosCount = 0
     
@@ -38,7 +38,7 @@ final class ImageListPresenter: ImageListPresenterProtocol {
                     print("failed to getPhotosNextPage with error: \(error)")
                     break
                 case .success(let photos):
-                    self.view.appendPhotos(photos: photos)
+                    self.appendPhotos(photos: photos)
                     
                     self.updateTableViewAnimated()
                 }
@@ -47,7 +47,7 @@ final class ImageListPresenter: ImageListPresenterProtocol {
     }
     
     func checkIfNeedGetPhotosNextPage(indexPath: IndexPath) {
-        if indexPath.row == view.photos.count - 1 {
+        if indexPath.row == photos.count - 1 {
             getPhotosNextPage()
         }
     }
@@ -79,23 +79,23 @@ final class ImageListPresenter: ImageListPresenterProtocol {
     }
     
     func updateTableViewAnimated() {
-        if oldPhotosCount != view.photos.count {
-            let indexPaths = (oldPhotosCount..<view.photos.count).map{ i in
+        if oldPhotosCount != photos.count {
+            let indexPaths = (oldPhotosCount..<photos.count).map{ i in
                 IndexPath(row: i, section: 0)
             }
             
             view.performBatchUpdates(indexPaths: indexPaths)
             
-            oldPhotosCount = view.photos.count
+            oldPhotosCount = photos.count
         }
     }
     
     func calculateCellHeight(indexPath: IndexPath, tableViewBoundsWidth: CGFloat) -> CGFloat {
-        if view.photos.count <= indexPath.row {
+        if photos.count <= indexPath.row {
             return 0
         }
         
-        let photo = view.photos[indexPath.row]
+        let photo = photos[indexPath.row]
         
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableViewBoundsWidth - imageInsets.left - imageInsets.right
@@ -103,5 +103,9 @@ final class ImageListPresenter: ImageListPresenterProtocol {
         let scale = imageViewWidth / imageWidth
         let cellHeight = photo.size.height * scale + imageInsets.top + imageInsets.bottom
         return cellHeight
+    }
+    
+    func appendPhotos(photos: [Photo]) {
+        self.photos.append(contentsOf: photos)
     }
 }

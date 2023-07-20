@@ -46,11 +46,35 @@ final class ImageListTests: XCTestCase {
         XCTAssertTrue(service.getPhotosNextPageCalled)
     }
     
+    func testAppendPhotos() {
+        //given
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let presenter = ImageListPresenter(service: ImageListServiceSpy(), view: ImageListViewControllerSpy())
+        
+        let addedPhoto = Photo(
+            id: "4",
+            size: CGSize(width: 100, height: 100),
+            createdAt: nil,
+            welcomeDescription: "",
+            thumbImageURL: "",
+            largeImageURL: "",
+            isLiked: true
+        )
+        // when
+        presenter.appendPhotos(photos: [addedPhoto])
+        
+        // then
+        let wantPhotosCount = 1
+        XCTAssertEqual(wantPhotosCount, presenter.photos.count)
+        XCTAssertEqual(addedPhoto.id, presenter.photos[0].id)
+    }
+    
     func testNeedGetPhotosNextPage() {
         // given
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
+        presenter.appendPhotos(photos: testPhotos)
         
         // when
         presenter.checkIfNeedGetPhotosNextPage(indexPath: IndexPath(row: 2, section: 0))
@@ -90,6 +114,7 @@ final class ImageListTests: XCTestCase {
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
+        presenter.appendPhotos(photos: testPhotos)
         
         // when
         presenter.updateTableViewAnimated()
@@ -118,6 +143,7 @@ final class ImageListTests: XCTestCase {
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
+        presenter.appendPhotos(photos: testPhotos)
         
         // when
         presenter.updateTableViewAnimated()
@@ -131,7 +157,7 @@ final class ImageListTests: XCTestCase {
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
-        
+        presenter.appendPhotos(photos: testPhotos)
         // when
         let getCellHeight = presenter.calculateCellHeight(indexPath: IndexPath(row: 0, section: 0), tableViewBoundsWidth: 400)
         
@@ -165,28 +191,6 @@ final class ImageListTests: XCTestCase {
         //then
         XCTAssertTrue(presenter.getPhotosNextPageCalled) //behaviour verification
     }
-    
-    func testAppendPhotos() {
-        //given
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let viewController = storyboard.instantiateViewController(withIdentifier: "ImagesListViewController") as! ImagesListViewController
-        let addedPhoto = Photo(
-            id: "4",
-            size: CGSize(width: 100, height: 100),
-            createdAt: nil,
-            welcomeDescription: "",
-            thumbImageURL: "",
-            largeImageURL: "",
-            isLiked: true
-        )
-        // when
-        viewController.appendPhotos(photos: [addedPhoto])
-        
-        // then
-        let wantPhotosCount = 4
-        XCTAssertEqual(wantPhotosCount, viewController.photos.count)
-        XCTAssertEqual(addedPhoto.id, viewController.photos[3].id)
-    }
 }
 
 final class ImageListServiceSpy: ImagesListServiceProtocol {
@@ -215,6 +219,8 @@ final class ImageListViewControllerSpy: ImagesListViewControllerProtocol {
 }
 
 final class ImageListPresenterSpy: ImageListPresenterProtocol {
+    var photos: [ImageFeed.Photo] = []
+    
     var view: ImagesListViewControllerProtocol?
     var getPhotosNextPageCalled = false
     
@@ -222,14 +228,13 @@ final class ImageListPresenterSpy: ImageListPresenterProtocol {
         getPhotosNextPageCalled = true
     }
     
-    func checkIfNeedGetPhotosNextPage(indexPath: IndexPath) {
-    }
+    func checkIfNeedGetPhotosNextPage(indexPath: IndexPath) {}
     
-    func changeLike(photo: ImageFeed.Photo, handler: @escaping (ImageFeed.Photo) -> Void) {
-    }
+    func changeLike(photo: ImageFeed.Photo, handler: @escaping (ImageFeed.Photo) -> Void) {}
     
-    func updateTableViewAnimated() {
-    }
+    func updateTableViewAnimated() {}
     
     func calculateCellHeight(indexPath: IndexPath, tableViewBoundsWidth: CGFloat) -> CGFloat { return 0 }
+    
+    func appendPhotos(photos: [ImageFeed.Photo]) {}
 }

@@ -9,17 +9,18 @@ import UIKit
 import Kingfisher
 
 protocol ImageListPresenterProtocol {
+    var photos: [Photo] { get set }
+    
     func getPhotosNextPage()
     func checkIfNeedGetPhotosNextPage(indexPath: IndexPath)
     func changeLike(photo: Photo, handler: @escaping(Photo) -> Void)
     func updateTableViewAnimated()
     func calculateCellHeight(indexPath: IndexPath, tableViewBoundsWidth: CGFloat) -> CGFloat
+    func appendPhotos(photos: [Photo])
 }
 
-class ImagesListViewController: UIViewController , ImagesListViewControllerProtocol{
+final class ImagesListViewController: UIViewController , ImagesListViewControllerProtocol{
     @IBOutlet weak private var tableView: UITableView!
-    
-    var photos: [Photo] = []
     
     static let DidChangeNotification = Notification.Name(rawValue: "ImageForSingleImageViewLoad")
     
@@ -53,13 +54,18 @@ class ImagesListViewController: UIViewController , ImagesListViewControllerProto
                 return
             }
             
-            if indexPath.row >= photos.count {
+            guard let presenter = presenter else {
+                assertionFailure("prepare: presenter is empty")
+                return
+            }
+            
+            if indexPath.row >= presenter.photos.count {
                 assertionFailure("segue prepare: indexPath.row >= photos.count")
                 return
             }
             
-            guard let url = URL(string: photos[indexPath.row].largeImageURL) else {
-                assertionFailure("failed to create url from: \(photos[indexPath.row].largeImageURL)")
+            guard let url = URL(string: presenter.photos[indexPath.row].largeImageURL) else {
+                assertionFailure("failed to create url from: \(presenter.photos[indexPath.row].largeImageURL)")
                 return
             }
             
@@ -72,7 +78,11 @@ class ImagesListViewController: UIViewController , ImagesListViewControllerProto
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photos.count
+        guard let presenter = presenter else {
+            assertionFailure("calculate numberOfRowsInSection: presenter is empty")
+            return 0
+        }
+        return presenter.photos.count
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -96,7 +106,11 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
-        if indexPath.row >= photos.count {
+        guard let presenter = presenter else {
+            assertionFailure("config cell: imageListService is empty")
+            return
+        }
+        if indexPath.row >= presenter.photos.count {
             assertionFailure("configCell: indexPath.row >= photos.count")
             return
         }
@@ -106,7 +120,7 @@ extension ImagesListViewController: UITableViewDataSource {
         do {
             try loadImage(
                 to: imageView,
-                url: photos[indexPath.row].thumbImageURL
+                url: presenter.photos[indexPath.row].thumbImageURL
             ) { result in
                 switch result {
                 case .success(_):
@@ -122,14 +136,14 @@ extension ImagesListViewController: UITableViewDataSource {
             return
         }
         
-        cell.configCell(cellImage: imageView.image!, photoDate: self.photos[indexPath.row].createdAt, isImageLike: self.photos[indexPath.row].isLiked)
+        cell.configCell(cellImage: imageView.image!, photoDate: presenter.photos[indexPath.row].createdAt, isImageLike: presenter.photos[indexPath.row].isLiked)
     }
 }
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let presenter = presenter else {
-            assertionFailure("")
+            assertionFailure("calculate heightForRowAt: presenter is empty")
             return 0
         }
         return presenter.calculateCellHeight(indexPath: indexPath, tableViewBoundsWidth: tableView.bounds.width)
@@ -144,13 +158,18 @@ extension ImagesListViewController: ImageListCellDelegate {
     func imageListCellTapLike(_ cell: ImageListCell) {
         UIBlockingProgressHUD.show()
         
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let photo = photos[indexPath.row]
+        guard var presenter = presenter else {
+            assertionFailure("imageListCellTapLike: presenter is empty")
+            return
+        }
         
-        presenter?.changeLike(photo: photo) { newPhoto in
-            self.photos[indexPath.row] = newPhoto
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        let photo = presenter.photos[indexPath.row]
+        
+        presenter.changeLike(photo: photo) { newPhoto in
+            presenter.photos[indexPath.row] = newPhoto
             
-            cell.setIsLike(isImageLike: self.photos[indexPath.row].isLiked)
+            cell.setIsLike(isImageLike: presenter.photos[indexPath.row].isLiked)
         }
     }
 }
@@ -160,10 +179,6 @@ extension ImagesListViewController {
         self.tableView.performBatchUpdates {
             self.tableView.insertRows(at: indexPaths, with: .automatic)
         } completion: { _ in }
-    }
-    
-    func appendPhotos(photos: [Photo]) {
-        self.photos.append(contentsOf: photos)
     }
 }
 

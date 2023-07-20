@@ -16,6 +16,8 @@ final class ImageFeedUITests: XCTestCase {
     }
 
     func testAuth() throws {
+        sleep(3)
+        
         app.buttons["Authenticate"].tap()
         
         let webView = app.webViews["UnsplashWebView"]
@@ -23,7 +25,7 @@ final class ImageFeedUITests: XCTestCase {
         XCTAssertTrue(webView.waitForExistence(timeout: 5))
         
         let loginTextField = webView.descendants(matching: .textField).element
-        XCTAssertTrue(loginTextField.waitForExistence(timeout: 5))
+        XCTAssertTrue(loginTextField.waitForExistence(timeout: 10))
         
         loginTextField.tap()
         loginTextField.typeText("your_email")
@@ -42,25 +44,29 @@ final class ImageFeedUITests: XCTestCase {
         
         let tablesQuery = app.tables
         let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
-        XCTAssertTrue(cell.waitForExistence(timeout: 5))
+        XCTAssertTrue(cell.waitForExistence(timeout: 10))
     }
     
     func testFeed() throws {
-        let imageFeedTable = app.tables["ImageFeedTable"]
+        let imageFeedTable = app.tables["ImageFeedTable"].firstMatch
         XCTAssertTrue(imageFeedTable.waitForExistence(timeout: 5))
-        
+
         imageFeedTable.swipeUp()
-        sleep(3)
+        sleep(2)
         
-        let firstCell = imageFeedTable.children(matching: .cell).element(boundBy: 1)
+        let firstCell = imageFeedTable.children(matching: .cell).element(boundBy: 1).firstMatch
         
         firstCell.buttons["UnlikeButton"].tap()
+        
+        sleep(5)
+        XCTAssertTrue(firstCell.buttons["LikeButton"].waitForExistence(timeout: 10))
         firstCell.buttons["LikeButton"].tap()
         
         firstCell.tap()
         
-        let singleImageView = app.scrollViews["ScrollImageView"]
+        let singleImageView = app.scrollViews["ScrollImageView"].firstMatch
         XCTAssertTrue(singleImageView.waitForExistence(timeout: 5))
+        sleep(5)
         
         singleImageView.pinch(withScale: 3, velocity: 1)
         singleImageView.pinch(withScale: 0.5, velocity: -1)

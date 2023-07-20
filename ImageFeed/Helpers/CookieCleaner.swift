@@ -8,7 +8,7 @@
 import Foundation
 import WebKit
 
-class CookieCleaner: CookieCleenerProtocol {
+final class CookieCleaner: CookieCleenerProtocol {
     func clean() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
         WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { record in

@@ -26,7 +26,7 @@ protocol AvatarURLProviderProtocol {
     func getAvatarURL() -> String
 }
 
-class ProfileViewPresenter: ProfileViewPresenterProtocol {
+final class ProfileViewPresenter: ProfileViewPresenterProtocol {
     var viewController: ProfileViewControllerProtocol?
     private var profileImageServiceObserver: NSObjectProtocol?
     

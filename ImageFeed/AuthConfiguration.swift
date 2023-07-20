@@ -21,7 +21,6 @@ let GetTokenURL = "https://unsplash.com/oauth/token"
 
 let UnsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
 
-
 struct AuthConfiguration {
     let accessKey: String
     let secretKey: String
