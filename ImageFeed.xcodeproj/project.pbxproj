@@ -179,6 +179,7 @@
 		4D2B4EC92A24CAAE00568F6A /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				4D89EFB82A251B4A00D9AB95 /* WebViewViewControllerDelegate.swift */,
 				4D2B4ECA2A24CD3700568F6A /* AuthViewController.swift */,
 				4DCD64422A24D22A007BDDF9 /* WebViewViewController.swift */,
 				4D89EFC62A2B3B8000D9AB95 /* SplashViewController.swift */,
@@ -190,7 +191,6 @@
 		4D89EFB72A251B2C00D9AB95 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				4D89EFB82A251B4A00D9AB95 /* WebViewViewControllerDelegate.swift */,
 				4D89EFBA2A27426000D9AB95 /* NetworkClient.swift */,
 				4D89EFBC2A274A3000D9AB95 /* TokenProvider.swift */,
 				4D89EFC42A2914BE00D9AB95 /* OAuth2TokenStorage.swift */,
