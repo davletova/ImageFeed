@@ -46,35 +46,12 @@ final class ImageListTests: XCTestCase {
         XCTAssertTrue(service.getPhotosNextPageCalled)
     }
     
-    func testAppendPhotos() {
-        //given
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let presenter = ImageListPresenter(service: ImageListServiceSpy(), view: ImageListViewControllerSpy())
-        
-        let addedPhoto = Photo(
-            id: "4",
-            size: CGSize(width: 100, height: 100),
-            createdAt: nil,
-            welcomeDescription: "",
-            thumbImageURL: "",
-            largeImageURL: "",
-            isLiked: true
-        )
-        // when
-        presenter.appendPhotos(photos: [addedPhoto])
-        
-        // then
-        let wantPhotosCount = 1
-        XCTAssertEqual(wantPhotosCount, presenter.photos.count)
-        XCTAssertEqual(addedPhoto.id, presenter.photos[0].id)
-    }
-    
     func testNeedGetPhotosNextPage() {
         // given
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
-        presenter.appendPhotos(photos: testPhotos)
+        presenter.photos.append(contentsOf: testPhotos)
         
         // when
         presenter.checkIfNeedGetPhotosNextPage(indexPath: IndexPath(row: 2, section: 0))
@@ -114,7 +91,7 @@ final class ImageListTests: XCTestCase {
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
-        presenter.appendPhotos(photos: testPhotos)
+        presenter.photos.append(contentsOf: testPhotos)
         
         // when
         presenter.updateTableViewAnimated()
@@ -143,7 +120,7 @@ final class ImageListTests: XCTestCase {
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
-        presenter.appendPhotos(photos: testPhotos)
+        presenter.photos.append(contentsOf: testPhotos)
         
         // when
         presenter.updateTableViewAnimated()
@@ -157,7 +134,7 @@ final class ImageListTests: XCTestCase {
         let view = ImageListViewControllerSpy()
         let service = ImageListServiceSpy()
         let presenter = ImageListPresenter(service: service, view: view)
-        presenter.appendPhotos(photos: testPhotos)
+        presenter.photos.append(contentsOf: testPhotos)
         // when
         let getCellHeight = presenter.calculateCellHeight(indexPath: IndexPath(row: 0, section: 0), tableViewBoundsWidth: 400)
         

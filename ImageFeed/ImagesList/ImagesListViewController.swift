@@ -16,7 +16,6 @@ protocol ImageListPresenterProtocol {
     func changeLike(photo: Photo, handler: @escaping(Photo) -> Void)
     func updateTableViewAnimated()
     func calculateCellHeight(indexPath: IndexPath, tableViewBoundsWidth: CGFloat) -> CGFloat
-    func appendPhotos(photos: [Photo])
 }
 
 final class ImagesListViewController: UIViewController , ImagesListViewControllerProtocol{

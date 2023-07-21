@@ -38,7 +38,7 @@ final class ImageListPresenter: ImageListPresenterProtocol {
                     print("failed to getPhotosNextPage with error: \(error)")
                     break
                 case .success(let photos):
-                    self.appendPhotos(photos: photos)
+                    self.photos.append(contentsOf: photos)
                     
                     self.updateTableViewAnimated()
                 }
@@ -103,9 +103,5 @@ final class ImageListPresenter: ImageListPresenterProtocol {
         let scale = imageViewWidth / imageWidth
         let cellHeight = photo.size.height * scale + imageInsets.top + imageInsets.bottom
         return cellHeight
-    }
-    
-    func appendPhotos(photos: [Photo]) {
-        self.photos.append(contentsOf: photos)
     }
 }
