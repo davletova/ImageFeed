@@ -9,7 +9,7 @@ import Foundation
 
 let tokenHTTPHeaderField = "Authorization"
 
-class APIRequester: NetworkRequester {
+final class APIRequester: NetworkRequester {
     private var accessToken: String
     
     init(accessToken: String) {

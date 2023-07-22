@@ -38,6 +38,9 @@ final class SingleImageViewController: UIViewController {
         
         super.viewDidLoad()
         
+        scrollView.accessibilityIdentifier = "ScrollImageView"
+        backButton.accessibilityIdentifier = "BackButton"
+        
         loadImage()
     }
 }

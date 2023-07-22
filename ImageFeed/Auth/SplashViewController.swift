@@ -15,7 +15,7 @@ let networkErrorAlertTitle = "Что-то пошло не так"
 let networkErrorAlertMessage = "Не удалось войти в систему"
 let networkErrorAlertButtonText = "OK"
 
-class SplashViewController: UIViewController {
+final class SplashViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

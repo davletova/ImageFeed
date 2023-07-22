@@ -14,7 +14,7 @@ protocol OAuth2TokenStorageProtocol {
     var accessToken: String? {get set}
 }
 
-class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
+final class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
     static let shared: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
     
     var accessToken: String? {
@@ -37,8 +37,8 @@ class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
     }
 }
 
-extension OAuth2TokenStorage {
-    static func removeAccessToken() {
+extension OAuth2TokenStorage: AccessTokenCleanerProtocol {
+    func removeAccessToken() {
         KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: accessTokenKeychainKey))
     }
 }

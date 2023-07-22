@@ -32,22 +32,34 @@ final class ImageListCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        
+     
+        likeButton.accessibilityIdentifier = "LikeButton"
         cellImageView.kf.cancelDownloadTask()
     }
 }
 
 extension ImageListCell {
-    public func configCell(cellImage: UIImage, photoDate: Date?, buttonImage: UIImage) {
+    public func configCell(cellImage: UIImage, photoDate: Date?, isImageLike: Bool) {
         cellImageView.image = cellImage
         date.text = ""
         if let photoDate = photoDate {
             date.text = dateFormatter.string(from: photoDate)
         }
+        
+        guard let buttonImage = isImageLike ? UIImage(named: "Active") : UIImage(named: "No Active") else {
+            assertionFailure("configCell: failed to get likeButton image")
+            return
+        }
         likeButton.setImage(buttonImage, for: .normal)
+        likeButton.accessibilityIdentifier = isImageLike ? "LikeButton" : "UnlikeButton"
     }
     
-    public func setIsLike(buttonImage: UIImage) {
+    public func setIsLike(isImageLike: Bool) {
+        guard let buttonImage = isImageLike ? UIImage(named: "Active") : UIImage(named: "No Active") else {
+            assertionFailure("configCell: failed to get likeButton image")
+            return
+        }
         likeButton.setImage(buttonImage, for: .normal)
+        likeButton.accessibilityIdentifier = isImageLike ? "LikeButton" : "UnlikeButton"
     }
 }

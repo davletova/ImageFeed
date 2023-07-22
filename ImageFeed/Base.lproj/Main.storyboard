@@ -249,6 +249,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="0Sk-7I-cPy"/>
+                    <connections>
+                        <outlet property="login" destination="8Hv-4K-nIp" id="NY3-NF-30h"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7HK-Rv-afK" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -276,7 +279,7 @@
         <!--Web View View Controller-->
         <scene sceneID="lY2-5m-VbP">
             <objects>
-                <viewController id="olm-xP-GqP" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" id="olm-xP-GqP" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ODk-5p-cq8">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -310,6 +313,9 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Ccw-bW-bFj"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <accessibility key="accessibilityConfiguration" identifier="WebViewViewController">
+                            <bool key="isElement" value="YES"/>
+                        </accessibility>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="38H-9o-p7M" secondAttribute="bottom" id="1KH-Na-QOB"/>
                             <constraint firstItem="Ifd-Jw-SWM" firstAttribute="leading" secondItem="Ccw-bW-bFj" secondAttribute="leading" id="A49-hy-pRq"/>

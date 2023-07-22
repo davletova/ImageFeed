@@ -12,13 +12,20 @@ protocol AuthViewControllerDelegate {
     func switchToTabBarController()
 }
 
-class AuthViewController: UIViewController {
+final class AuthViewController: UIViewController {
     static let ReuseIdentifier: String = "ShowWebView"
     
     var tokenProvider: TokenProviderProtocol = BearerTokenProvider()
     var oauth2TokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage()
-    
     var delegate: AuthViewControllerDelegate?
+    
+    @IBOutlet private weak var login: UIButton!
+   
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        login.accessibilityIdentifier = "Authenticate"
+    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == AuthViewController.ReuseIdentifier {
@@ -26,6 +33,10 @@ class AuthViewController: UIViewController {
                 assertionFailure("failed to customize seque.destination to WebViewViewController")
                 return
             }
+            let authHelper = AuthHelper()
+            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+            webViewPresenter.view = webView
+            webView.presenter = webViewPresenter
             webView.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
