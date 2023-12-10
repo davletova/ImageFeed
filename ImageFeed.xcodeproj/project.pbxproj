@@ -49,6 +49,7 @@
 		4DF2F8202A0379BB005A85F6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4DF2F81E2A0379BB005A85F6 /* LaunchScreen.storyboard */; };
 		4DF2F8282A03CF81005A85F6 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 4DF2F8272A03CF81005A85F6 /* .gitignore */; };
 		4DF2F86A2A0BA368005A85F6 /* ImagesListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF2F8692A0BA368005A85F6 /* ImagesListCell.swift */; };
+		4DFE5BD02B2632BB0072AF37 /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 4DFE5BCF2B2632BB0072AF37 /* Readme.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +113,7 @@
 		4DF2F8212A0379BB005A85F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4DF2F8272A03CF81005A85F6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		4DF2F8692A0BA368005A85F6 /* ImagesListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListCell.swift; sourceTree = "<group>"; };
+		4DFE5BCF2B2632BB0072AF37 /* Readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -244,6 +246,7 @@
 		4DF2F8072A0379B8005A85F6 = {
 			isa = PBXGroup;
 			children = (
+				4DFE5BCF2B2632BB0072AF37 /* Readme.md */,
 				4DF2F8122A0379B8005A85F6 /* ImageFeed */,
 				4DB0A9FC2A5C84B7001EEFC4 /* ImageFeedTests */,
 				4D0F231B2A61B49F00F2D89D /* ImageFeedUITests */,
@@ -423,6 +426,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DFE5BD02B2632BB0072AF37 /* Readme.md in Resources */,
 				4DF2F8282A03CF81005A85F6 /* .gitignore in Resources */,
 				4DF2F8202A0379BB005A85F6 /* LaunchScreen.storyboard in Resources */,
 				4DF2F81D2A0379BB005A85F6 /* Assets.xcassets in Resources */,
