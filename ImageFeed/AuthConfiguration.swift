@@ -7,9 +7,9 @@
 
 import Foundation
 
-let AccessKey = "0mnJFOFHu-fcr2ejUhKYQ0k_TUgy3m2bAV0khOxc5z4"
+let AccessKey = "<access_key>"
 
-let SecretKey = "OrhUhP34b4x-nxX4xAzfFmLc-5a1U7jPmafhM2cWFkg"
+let SecretKey = "<secret_key>"
 
 let RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
 
